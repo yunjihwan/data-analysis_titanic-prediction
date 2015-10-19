@@ -23,8 +23,9 @@ output:
 ```{r}
 options(width=150)
 
+Titanic.path <- "https://raw.github.com/wehrley/Kaggle_Titanic/master/"
 # Titanic.path <- "/home/machi/r-test/11장_타이타닉예제/"
-Titanic.path <- "C:\\test\\r_test\\11장_타이타닉예제\\"
+# Titanic.path <- "C:\\test\\r_test\\11장_타이타닉예제\\"
 train.data.file <- "train.csv"
 test.data.file <- "test.csv"  ## Survived 칼럼 값이 없음 
 missing.types <- c("NA", "")
@@ -229,7 +230,7 @@ sum(rpart_result$predicted == rpart_result$actual) / NROW(rpart_result$actual)  
 #### 조건부의사결정나무 
 
 ```{r}
-
+# install.packages("party")
 suppressPackageStartupMessages({
   library(party)
 })
@@ -530,10 +531,10 @@ Some color on the features I've added:
 >  * Side - subject to the same concern (dearth of data) expressed for Deck
 
 ```{r}
-# train.keeps <- c("Fate", "Sex", "Boat.dibs", "Age", "Title", 
-#                 "Class", "Deck", "Side", "Fare", "Fare.pp", 
-#                   "Embarked", "Family","Survived")  ## Survived 을 추가함 
-# df.train.munged <- df.train[train.keeps]
+train.keeps <- c("Fate", "Sex", "Boat.dibs", "Age", "Title", 
+                "Class", "Deck", "Side", "Fare", "Fare.pp", 
+                  "Embarked", "Family","Survived")  ## Survived 을 추가함 
+df.train.munged <- df.train[train.keeps]
 ```
 
 ### Fitting a Model
@@ -662,13 +663,13 @@ Remember that there were a lot of male passengers in third class. Given the “w
 변수의 특정 조건 연산을 통해 feature를 추가 ..   
 
 ```{r}
-# set.seed(35)
-# glm.tune.5 <- train(Fate ~ Class + I(Title=="Mr") + I(Title=="Noble") + Age + Family + I(Embarked=="S") + I(Title=="Mr"&Class=="Third")
-#                     , data = train.batch
-#                     , method = "glm"
-#                     , metric = "ROC"
-#                     , trControl = cv.ctrl)
-# summary(glm.tune.5)
+set.seed(35)
+glm.tune.5 <- train(Fate ~ Class + I(Title=="Mr") + I(Title=="Noble") + Age + Family + I(Embarked=="S") + I(Title=="Mr"&Class=="Third")
+                    , data = train.batch
+                    , method = "glm"
+                    , metric = "ROC"
+                    , trControl = cv.ctrl)
+summary(glm.tune.5)
 ```
 
 가장 낮은 AIC 도출 .. 
@@ -980,41 +981,41 @@ Given everything we've been through here, it would be a shame if we didn't submi
 
 ```{r}
 # # get titles
-# df.infer$Title <- getTitle(df.infer)
-# 
-# # impute missing Age values
-# df.infer$Title <- changeTitles(df.infer, c("Dona", "Ms"), "Mrs")
-# titles.na.test <- c("Master", "Mrs", "Miss", "Mr")
-# df.infer$Age <- imputeMedian(df.infer$Age, df.infer$Title, titles.na.test)
-# 
-# # consolidate titles
-# df.infer$Title <- changeTitles(df.infer, c("Col", "Dr", "Rev"), "Noble")
-# df.infer$Title <- changeTitles(df.infer, c("Mlle", "Mme"), "Miss")
-# df.infer$Title <- as.factor(df.infer$Title)
-# 
-# # impute missing fares
-# df.infer$Fare[ which( df.infer$Fare == 0)] <- NA
-# df.infer$Fare <- imputeMedian(df.infer$Fare, df.infer$Pclass, 
-#                                 as.numeric(levels(df.infer$Pclass)))
-# # add the other features
-# df.infer <- featureEngrg(df.infer)
-# 
-# # data prepped for casting predictions
-# test.keeps <- train.keeps[-1]
-# pred.these <- df.infer[test.keeps]
-# 
-# # use the logistic regression model to generate predictions
-# Survived <- predict(glm.tune.5, newdata = pred.these)
-# 
-# # reformat predictions to 0 or 1 and link to PassengerId in a data frame
-# Survived <- revalue(Survived, c("Survived" = 1, "Perished" = 0))
-# predictions <- as.data.frame(Survived)
-# predictions$PassengerId <- df.infer$PassengerId
-# 
-# # write predictions to csv file for submission to Kaggle
-# setwd("C:\\test\\r_test\\11장_타이타닉예제\\")
-# write.csv(predictions[,c("PassengerId", "Survived")], 
-#           file="Titanic_predictions.csv", row.names=FALSE, quote=FALSE)
+df.infer$Title <- getTitle(df.infer)
+
+# impute missing Age values
+df.infer$Title <- changeTitles(df.infer, c("Dona", "Ms"), "Mrs")
+titles.na.test <- c("Master", "Mrs", "Miss", "Mr")
+df.infer$Age <- imputeMedian(df.infer$Age, df.infer$Title, titles.na.test)
+
+# consolidate titles
+df.infer$Title <- changeTitles(df.infer, c("Col", "Dr", "Rev"), "Noble")
+df.infer$Title <- changeTitles(df.infer, c("Mlle", "Mme"), "Miss")
+df.infer$Title <- as.factor(df.infer$Title)
+
+# impute missing fares
+df.infer$Fare[ which( df.infer$Fare == 0)] <- NA
+df.infer$Fare <- imputeMedian(df.infer$Fare, df.infer$Pclass, 
+                                as.numeric(levels(df.infer$Pclass)))
+# add the other features
+df.infer <- featureEngrg(df.infer)
+
+# data prepped for casting predictions
+test.keeps <- train.keeps[-1]
+pred.these <- df.infer[test.keeps]
+
+# use the logistic regression model to generate predictions
+Survived <- predict(rf.tune, newdata = pred.these)
+
+# reformat predictions to 0 or 1 and link to PassengerId in a data frame
+Survived <- revalue(Survived, c("Survived" = 1, "Perished" = 0))
+predictions <- as.data.frame(Survived)
+predictions$PassengerId <- df.infer$PassengerId
+
+# write predictions to csv file for submission to Kaggle
+setwd("C:\\")
+write.csv(predictions[,c("PassengerId", "Survived")], 
+          file="Titanic_predictions.csv", row.names=FALSE, quote=FALSE)
 
 ```
 
