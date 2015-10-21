@@ -614,7 +614,34 @@ glm.tune.1 <- train(Survived ~ Sex + Pclass + Age + avg_prob
 glm.tune.1
 summary(glm.tune.1)
 ```
+```
+Call:
+NULL
 
+Deviance Residuals: 
+   Min      1Q  Median      3Q     Max  
+-2.347  -0.520  -0.403   0.540   2.433  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   4.1525     0.4206    9.87  < 2e-16 ***
+Sexmale      -1.2811     0.2849   -4.50  6.9e-06 ***
+Pclass2      -0.9624     0.3246   -2.97  0.00302 ** 
+Pclass3      -1.3000     0.3228   -4.03  5.6e-05 ***
+Age          -0.0310     0.0085   -3.65  0.00026 ***
+avg_prob     -3.4842     0.5444   -6.40  1.6e-10 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 950.86  on 713  degrees of freedom
+Residual deviance: 601.92  on 708  degrees of freedom
+AIC: 613.9
+
+Number of Fisher Scoring iterations: 5
+
+```
 
    * [AIC 통계량](https://en.wikipedia.org/wiki/Akaike_information_criterion)
     * AIC = -2 log L(log-likelihood) +2n
