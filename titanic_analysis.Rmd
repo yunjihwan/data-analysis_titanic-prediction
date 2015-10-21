@@ -540,7 +540,12 @@ Some color on the features I've added:
 ### Fitting a Model
 
 #### 로지스틱 회귀분석을 통한 변수 최적화
-
+   * [선형회귀](https://ko.wikipedia.org/wiki/%EC%84%A0%ED%98%95_%ED%9A%8C%EA%B7%80)
+    * 종속 변수 y와 한 개 이상의 독립 변수 (또는 설명 변수) X와의 선형 상관 관계를 모델링하는 회귀분석
+    * 한 개의 설명 변수에 기반한 경우에는 단순 선형 회귀, 둘 이상의 설명 변수에 기반한 경우에는 다중 선형 회귀라고 한다.
+   * [로지스틱회귀](https://ko.wikipedia.org/wiki/%EB%A1%9C%EC%A7%80%EC%8A%A4%ED%8B%B1_%ED%9A%8C%EA%B7%80)
+    *  선형 회귀 분석과는 다르게 종속 변수가 범주형 데이터를 대상으로 함
+    
 ```{r}
 
 (Titanic.logit.1 <- glm(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked
@@ -557,18 +562,90 @@ Some color on the features I've added:
 ```{r}
 # anova(Titanic.logit.1)
 anova(Titanic.logit.1, test="Chisq")
+summary(Titanic.logit.1)
 ```
+```
+Call:
+glm(formula = Survived ~ Pclass + Sex + Age + SibSp + Parch + 
+    Fare + Embarked + maybe_parent + maybe_child + avg_prob + 
+    avg_parent_prob + avg_child_prob, family = binomial("logit"), 
+    data = train.batch)
 
+Deviance Residuals: 
+   Min      1Q  Median      3Q     Max  
+-2.370  -0.503  -0.404   0.563   2.433  
+
+Coefficients:
+                  Estimate Std. Error z value Pr(>|z|)    
+(Intercept)       4.583981   0.568258    8.07  7.2e-16 ***
+Pclass2          -1.014721   0.376548   -2.69  0.00704 ** 
+Pclass3          -1.358774   0.387583   -3.51  0.00046 ***
+Sexmale          -1.559340   0.321003   -4.86  1.2e-06 ***
+Age              -0.034060   0.010318   -3.30  0.00096 ***
+SibSp            -0.251189   0.134668   -1.87  0.06215 .  
+Parch            -0.109198   0.194657   -0.56  0.57481    
+Fare              0.000854   0.002622    0.33  0.74477    
+EmbarkedQ         0.028816   0.435883    0.07  0.94729    
+EmbarkedS        -0.391841   0.275128   -1.42  0.15438    
+maybe_parentTRUE -0.225703   0.425974   -0.53  0.59622    
+maybe_childTRUE   0.075726   0.444919    0.17  0.86485    
+avg_prob         -1.325760   4.737066   -0.28  0.77958    
+avg_parent_prob   0.427873   2.323146    0.18  0.85387    
+avg_child_prob   -2.113274   2.565825   -0.82  0.41015    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 950.86  on 713  degrees of freedom
+Residual deviance: 587.76  on 699  degrees of freedom
+AIC: 617.8
+
+Number of Fisher Scoring iterations: 5
+```
 Deviance (편차), Resid. Df (Residual degrees of freedom, 잔차 자유도), Resid. Dev(Residual Deviance, 잔차 편차)
+
+
+
+
   
 여기서 Sex, Pclass, Age, avg_prob 변수의 중요도를 확인하였음.
 
 ```{r}
 Titanic.logit.2 <- glm(Survived ~ Sex + Pclass + Age + avg_prob, data = train.batch, family=binomial("logit"))
 anova(Titanic.logit.2, test="Chisq")
+summary(Titanic.logit.2)
 
 ```
-  
+```
+Call:
+glm(formula = Survived ~ Sex + Pclass + Age + avg_prob, family = binomial("logit"), 
+    data = train.batch)
+
+Deviance Residuals: 
+   Min      1Q  Median      3Q     Max  
+-2.347  -0.520  -0.403   0.540   2.433  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   4.1525     0.4206    9.87  < 2e-16 ***
+Sexmale      -1.2811     0.2849   -4.50  6.9e-06 ***
+Pclass2      -0.9624     0.3246   -2.97  0.00302 ** 
+Pclass3      -1.3000     0.3228   -4.03  5.6e-05 ***
+Age          -0.0310     0.0085   -3.65  0.00026 ***
+avg_prob     -3.4842     0.5444   -6.40  1.6e-10 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 950.86  on 713  degrees of freedom
+Residual deviance: 601.92  on 708  degrees of freedom
+AIC: 613.9
+
+Number of Fisher Scoring iterations: 5
+
+```
   
   Time to shift the model fitting to a higher gear. Henceforth, I'm going to use the train function in Kuhn's caret package to fit binary logistic regression models, as well as models built using other methods.
 
@@ -642,8 +719,11 @@ AIC: 613.9
 Number of Fisher Scoring iterations: 5
 
 ```
-
+   *  
+   
+   
    * [AIC 통계량](https://en.wikipedia.org/wiki/Akaike_information_criterion)
+    * 최적 모형을 결정하는 경우 모형의 설명능력과 모형의 절약성을 고려, 두 판단기준을 함께 고려한 선택규준.
     * AIC = -2 log L(log-likelihood) +2n
 
 > 기존 코드보다는 결과가 좋아짐 
@@ -662,7 +742,35 @@ glm.tune.2 <- train(Survived ~ Sex + Pclass + Age + avg_prob + I(Embarked=="S")
                       , trControl = cv.ctrl)
 summary(glm.tune.2)
 ```
+```
+Call:
+NULL
 
+Deviance Residuals: 
+   Min      1Q  Median      3Q     Max  
+-2.340  -0.527  -0.380   0.572   2.479  
+
+Coefficients:
+                         Estimate Std. Error z value Pr(>|z|)    
+(Intercept)               4.39308    0.44238    9.93  < 2e-16 ***
+Sexmale                  -1.26649    0.28731   -4.41  1.0e-05 ***
+Pclass2                  -0.84230    0.32766   -2.57   0.0102 *  
+Pclass3                  -1.28945    0.32407   -3.98  6.9e-05 ***
+Age                      -0.03084    0.00852   -3.62   0.0003 ***
+avg_prob                 -3.38705    0.54730   -6.19  6.1e-10 ***
+`I(Embarked == "S")TRUE` -0.48024    0.23063   -2.08   0.0373 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 950.86  on 713  degrees of freedom
+Residual deviance: 597.61  on 707  degrees of freedom
+AIC: 611.6
+
+Number of Fisher Scoring iterations: 5
+
+```
 As I discussed earlier, the 'Title' feature addresses more than one theme. For that reason, I believe it has real potential to improve this model. Besides, I put a good chunk of effort into it, so why not give it a go?
 
 ```{r}
@@ -673,6 +781,34 @@ glm.tune.3 <- train(Survived ~ Sex + Pclass + Age + avg_prob + I(Embarked=="S")
                     ,metric = "ROC"
                     , trControl = cv.ctrl)
 summary(glm.tune.3)
+```
+```
+Call:
+NULL
+
+Deviance Residuals: 
+   Min      1Q  Median      3Q     Max  
+-2.340  -0.527  -0.380   0.572   2.479  
+
+Coefficients:
+                         Estimate Std. Error z value Pr(>|z|)    
+(Intercept)               4.39308    0.44238    9.93  < 2e-16 ***
+Sexmale                  -1.26649    0.28731   -4.41  1.0e-05 ***
+Pclass2                  -0.84230    0.32766   -2.57   0.0102 *  
+Pclass3                  -1.28945    0.32407   -3.98  6.9e-05 ***
+Age                      -0.03084    0.00852   -3.62   0.0003 ***
+avg_prob                 -3.38705    0.54730   -6.19  6.1e-10 ***
+`I(Embarked == "S")TRUE` -0.48024    0.23063   -2.08   0.0373 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 950.86  on 713  degrees of freedom
+Residual deviance: 597.61  on 707  degrees of freedom
+AIC: 611.6
+
+Number of Fisher Scoring iterations: 5
 ```
 
 Nice! That gave us our first material decline in the residual deviance. Since the Title feature seems to give us everything that Age did (and more), I'm going to drop Age from the formula. I will also collapse the titles “Miss” and “Mrs” and leave a duo of Title-related factors which should represent the “women and children first” theme well.
@@ -701,6 +837,36 @@ glm.tune.5 <- train(Fate ~ Class + I(Title=="Mr") + I(Title=="Noble") + Age + Fa
                     , metric = "ROC"
                     , trControl = cv.ctrl)
 summary(glm.tune.5)
+```
+```
+Call:
+NULL
+
+Deviance Residuals: 
+   Min      1Q  Median      3Q     Max  
+-3.055  -0.571  -0.421   0.358   2.334  
+
+Coefficients:
+                                          Estimate Std. Error z value Pr(>|z|)    
+(Intercept)                                6.12777    0.71231    8.60  < 2e-16 ***
+ClassSecond                               -1.95084    0.43127   -4.52  6.1e-06 ***
+ClassThird                                -4.54488    0.60939   -7.46  8.8e-14 ***
+`I(Title == "Mr")TRUE`                    -4.98118    0.54835   -9.08  < 2e-16 ***
+`I(Title == "Noble")TRUE`                 -4.48154    0.72792   -6.16  7.4e-10 ***
+Age                                       -0.02944    0.00975   -3.02   0.0025 ** 
+Family                                    -0.35226    0.08273   -4.26  2.1e-05 ***
+`I(Embarked == "S")TRUE`                  -0.55795    0.23065   -2.42   0.0156 *  
+`I(Title == "Mr" & Class == "Third")TRUE`  2.72557    0.60693    4.49  7.1e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 950.86  on 713  degrees of freedom
+Residual deviance: 573.80  on 705  degrees of freedom
+AIC: 591.8
+
+Number of Fisher Scoring iterations: 6
 ```
 
 가장 낮은 AIC 도출 .. 
