@@ -666,7 +666,8 @@ All of these things I want -- 3x 10-fold CV, estimation of class probabilities, 
           * 모델의 성능이 $P_{1}$,$P_{2}$,,,, $P_{10}$ 으로 구해지며, 최종 성능은 이들의 산술 평균으로 정함 
     * 해당 모델링 기법으로 훈련 데이터 전체를 사용해 최종 모델을 만듬
     * 테스트 데이터에 최종 모델을 적용해 성능을 평가하고, 그 결과를 최종 모델과 함께 제출함
-
+    
+![alt text](/resource/k_fold_crossvalidation.PNG)
 
 ```{r}
 cv.ctrl <- trainControl(method = "repeatedcv", repeats = 3,
