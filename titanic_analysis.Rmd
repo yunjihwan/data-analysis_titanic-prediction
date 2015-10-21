@@ -599,6 +599,9 @@ cv.ctrl <- trainControl(method = "repeatedcv", repeats = 3,
 
 Below is the train function call using the same formula (sans Fare) that we recently passed through glm function. I use the metric argument to tell train to optimize the model by maximizing the area under the ROC curve (AUC). summary(), another extractor function, is called to generate regression coefficients with standard errors and a z-test, plus the residual deviance metric we were watching earlier.
 
+   * [AIC 통계량](https://en.wikipedia.org/wiki/Akaike_information_criterion)
+    * AIC = -2 log L(log-likelihood) +2n
+
 ```{r}
 # install.packages("pROC")
 
