@@ -709,7 +709,12 @@ All of these things I want -- 3x 10-fold CV, estimation of class probabilities, 
     * 해당 모델링 기법으로 훈련 데이터 전체를 사용해 최종 모델을 만듬
     * 테스트 데이터에 최종 모델을 적용해 성능을 평가하고, 그 결과를 최종 모델과 함께 제출함
     
-    * 
+    * Trainnig Data의 갯수
+      * 많은면 많을 수록 좋다. 하지만 보다 중요한 것은 제대로 된 데이터를 가지고 있는 것
+        * ![alt text](/resource/training_curve.png)
+    * [과적합(Overfiting)](https://en.wikipedia.org/wiki/Overfitting)
+      * 많은 데이터를 Train 하게되면 unseen 데이터에 대해 낮은 예측력이 생길 수 있다.  
+        * ![alt text](/resource/overfilt.PNG)
 
 ```{r}
 cv.ctrl <- trainControl(method = "repeatedcv", repeats = 3,
