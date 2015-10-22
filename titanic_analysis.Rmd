@@ -530,6 +530,7 @@ Some color on the features I've added:
 >  * Deck - levels are as shown in the Titanic cross-section displayed previously. Cabin data >provided for just 23 percent of training data records, so it's tough to give this one much >emphasis.
 >  * Side - subject to the same concern (dearth of data) expressed for Deck
 
+
 ```{r}
 # train.keeps <- c("Fate", "Sex", "Boat.dibs", "Age", "Title", 
 #                 "Class", "Deck", "Side", "Fare", "Fare.pp", 
@@ -548,18 +549,24 @@ Some color on the features I've added:
     
 ```{r}
 
-(Titanic.logit.1 <- glm(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked
+(Titanic.logit.1 <- glm(Survived ~ Pclass + Sex + Age + SibSp +  Parch + Fare + Embarked
         + maybe_parent + maybe_child + avg_prob + avg_parent_prob + avg_child_prob,data=train.batch, family=binomial("logit")))
 
+  
 # 이에 대한 p-value 는 아래와 같이 구함 
-### The deviance was reduced by 332.2(950.9-618.7) points on 713-705=8 degrees of freedom (DF), a significant reduction..
-1 - pchisq((765.4-464.5), df=(568-554))  ## 0 유의미한 차이가 있고, 모델이 잘 수행한다고 봐야 ??  
+### The deviance was reduced by 363(951-588) points on 713-699=14 degrees of freedom (DF), a significant reduction..
+1 - pchisq((951-588), df=(713-699))  ## 0 유의미한 차이가 있고, 모델이 잘 수행한다고 봐야 ??  
                        
 ```
 
-추가로 다른 feature 조합 들간의 비교를 위해 `anova()`를 사용 
+>  * glm으로 logit regression을 만들고, model fit을 확인하려면?
+>  * 모델의 적합도를 보는 다른 방법은 model이 데이터를 설명하는 예측력을 따져봄. Pearson chi-square를 계산
+>  *1 - pchisq(deviance(model), df.residual(model))
+>  *p-value를 통하여 유의미하지 않다는 것을 확인하여 영향이 없다는 귀무가설을 기각 할 수 있다.
 
     * [카이제곱검정](https://ko.wikipedia.org/wiki/%EC%B9%B4%EC%9D%B4%EC%A0%9C%EA%B3%B1_%EA%B2%80%EC%A0%95)
+
+추가로 다른 feature 조합 들간의 비교를 위해 `anova()`를 사용 
 
 ```{r}
 # anova(Titanic.logit.1)
@@ -591,6 +598,8 @@ avg_child_prob   1      0.7       699        588  0.41156
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 ```
+>  * 분산분석(Analysis of variance, ANOVA, 변량분석)은 통계학에서 두 개 이상 다수의 집단을 비교하고자 할 때 집단 내의 분산,  총평균과 각 집단의 평균의 차이에 의해 생긴 집단 간 분산의 비교를 통해 만들어진 F분포를 이용하여 가설검정을 하는 방법이다. 
+
 ```{r}
 summary(Titanic.logit.1)
 ```
@@ -639,7 +648,7 @@ Deviance (편차), Resid. Df (Residual degrees of freedom, 잔차 자유도), Re
 여기서 Sex, Pclass, Age, SibSp, avg_prob 변수의 중요도를 확인하였음.
 
    * [자유도](https://ko.wikipedia.org/wiki/%EC%9E%90%EC%9C%A0%EB%8F%84_(%ED%86%B5%EA%B3%84%ED%95%99))
-    * 독립적인 자료의 수 -> Feature의수
+    * 독립적인 자료의 수 -> Feature의 - 1
    * [p-value](https://ko.wikipedia.org/wiki/P-value)
     * 유의확률을 확인하기 위한 
     * p-value < 0.05 인 것으로 유의수준 5% 에서 통계적으로 효과가 있다고 봐야합
@@ -652,10 +661,9 @@ Deviance (편차), Resid. Df (Residual degrees of freedom, 잔차 자유도), Re
 
 
 ```{r}
-Titanic.logit.2 <- glm(Survived ~ Sex + Pclass + Age + SibSp + avg_prob, data = train.batch, family=binomial("logit"))
+Titanic.logit.2 <- glm(Survived ~ Sex + Pclass + Age + SibSp + Title + avg_prob, data = train.batch, family=binomial("logit"))
 anova(Titanic.logit.2, test="Chisq")
 summary(Titanic.logit.2)
-
 ```
 ```
 Call:
@@ -694,6 +702,8 @@ Modeling taken to an extreme on a training data set can leave you with a model w
 Later, I plan to compare the fitted logit model to other model types using the receiver operating characteristic (ROC) curve. The twoClassSummary function in caret can calculate the figures I'll need for that if I give it class probabilities predicted by the logistic regression model.
 
 All of these things I want -- 3x 10-fold CV, estimation of class probabilities, metrics from twoClassSummary -- can be passed through the trainControl function
+    
+
     
 ![alt text](/resource/k_fold_crossvalidation.PNG)
 
@@ -772,6 +782,8 @@ Number of Fisher Scoring iterations: 5
 
 This is as good a time as any to introduce the concept of class compression. Think of it as collapsing particular levels on a categorical variable. One of the earlier bar graphs showed about 70 percent of the Titanic's passengers boarded the ship at Southampton. I'm going to use Embarked and the I() function, which inhibits interpretation & conversion of R objects, to create a new 2-level factor within the model formula. This factor is valued TRUE if a passenger's port of origin was Southampton ("S"), or FALSE otherwise.
 
+70%의 탑승객이 Southampton에서 탑승함. Embarked를 I() 함수를 이용하여 2차원으로 축소하여 처리  
+
 Embarked의 기존 3레벨을 2레벨로 .. (차원축소??)
 
 
@@ -814,6 +826,8 @@ Number of Fisher Scoring iterations: 5
 
 ```
 As I discussed earlier, the 'Title' feature addresses more than one theme. For that reason, I believe it has real potential to improve this model. Besides, I put a good chunk of effort into it, so why not give it a go?
+
+Title에서 중요한 영향을 줄 수 있는 잠재력이 있어 보임
 
 ```{r}
 set.seed(35)
@@ -885,6 +899,8 @@ Nice! That gave us our first material decline in the residual deviance. Since th
 
 
 Remember that there were a lot of male passengers in third class. Given the “women and children first” policy already mentioned plus reports that the Titanic's internal layout was confusing (I recall reading that one crew member claimed it took him two weeks to become comfortable with finding his way around the ship), to say that “grown men in the lower decks had it tough” is such a gross understatement that I hesitated to put it in type. A feature reflecting those third-class men might make a further dent in that residual deviance. Indeed, it does...
+
+'여자와 아이딜 우선'의 가설을 검증하기 위하여 I()함수를 이용하여 몇 가지 피쳐를 추가
 
 변수의 특정 조건 연산을 통해 feature를 추가 ..   
 
