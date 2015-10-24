@@ -3,29 +3,29 @@ title: "Kaggle 타이타닉 생존자 예측"
 output:
   html_document:
     toc: true
+    toc_depth: 5
     theme: united
 ---
 
-
-## 11 장 타이닉 데이터를 사용한 기계학습 실습 
-
-
+# 타이타닉 생존자 예측 문제 개요 
   * 이런 유형의 문제를 .. 분류와 계층 확률 추정이라고 함 
     * 각 개인이 어느 계층에 속할지를 예측하는 것
     * 일반적으로 계측은 상호 배타적임
     * ex) "메가텔 고객 중 마케팅 제안을 받아들일 가능성이 잇는 고객은? " 과 같은 질문에 대해 수용하는 계층과 거부하는 계층으로 나누는 경우
 
-###  11.1 타이타닉 데이터 형식 
 
+# 데이터 로딩에서 EDA 까지 
 
-###  11.2 데이터 불러오기
+## 데이터 불러오기
 
 ```{r}
 options(width=150)
 
-Titanic.path <- "https://raw.github.com/wehrley/Kaggle_Titanic/master/"
 # Titanic.path <- "/home/machi/r-test/11장_타이타닉예제/"
 # Titanic.path <- "C:\\test\\r_test\\11장_타이타닉예제\\"
+#Titanic.path <- "C:\\\\Users/user/Documents/eda/"
+Titanic.path <- "https://raw.github.com/wehrley/Kaggle_Titanic/master/"
+
 train.data.file <- "train.csv"
 test.data.file <- "test.csv"  ## Survived 칼럼 값이 없음 
 missing.types <- c("NA", "")
@@ -58,7 +58,7 @@ readData <- function(path.name, file.name, column.types, missing.types) {
 ```
 
 
-### 테스트 데이터 분리 
+## 테스트 데이터 분리 
 
 ```{r}
 
@@ -80,7 +80,7 @@ df.infer <- test.raw
 
 ```
 
-### Data Munging
+## Data Munging
 
 ```{r}
 
@@ -164,7 +164,7 @@ corrgram(corrgram.data[,corrgram.vars], order=FALSE,
 
 ```
 
-### 간단한 모델 적용 
+## 간단한 모델 적용 
 
 이 절에서는 기계학습 모델을 적용해 보고자 함 
 여기서는 의사결정 나무 모델(rpart) 와 조건부 추론 나무(ctree) 를 사용함 
@@ -172,7 +172,7 @@ corrgram(corrgram.data[,corrgram.vars], order=FALSE,
 이유는 .. 쉽고 .. 다양한 변수의 상호 작용을 잘 표현해 주며,   
 NA 값에 대한 대리 변수 처리가 잘 되기 때문임 
 
-####  평가 메트릭 
+###  평가 메트릭 
 
 탑승객 생존 여부 예측 모델의 성능은 정확도(accuracy) 로 하기로 함   
 예측값과 실제값의 정확도는 아래와 같이 계산 (예시)
@@ -184,7 +184,7 @@ sum(predicted == actual) / NROW(predicted)
 ```
 
 
-#### 홀드아웃 기법 
+### 홀드아웃 기법 
 
   * 일반적으로 훈련, 테스트, 검증은 50:25:25 로 나눔
   * 여기서는 데이터가 많지 않기 때문에 훈련:테스트, 80:20 으로 나눔 
@@ -202,7 +202,7 @@ test.batch <- df.train[-training.rows, ]
 ```
 
 
-#### 의사결정나무 
+### 의사결정나무 
 
 ```{r}
 suppressPackageStartupMessages({
@@ -227,10 +227,10 @@ sum(rpart_result$predicted == rpart_result$actual) / NROW(rpart_result$actual)  
 ```
 
 
-#### 조건부의사결정나무 
+### 조건부의사결정나무 
 
 ```{r}
-# install.packages("party")
+
 suppressPackageStartupMessages({
   library(party)
 })
@@ -257,7 +257,8 @@ sum(ctree_result$predicted == ctree_result$actual) / NROW(ctree_result$actual)  
 
 > rpart 대비 성능이 향상되었음    
 
-### 새로운 feature 추출
+
+# 새로운 feature 추출
 
   * 계속적으로 모델을 향상시키는 것으로, 
     * 다른 모델링 기법을 적용하는 방안과
@@ -265,6 +266,7 @@ sum(ctree_result$predicted == ctree_result$actual) / NROW(ctree_result$actual)  
 
 여기서는 후자 쪽 접근을 .. 시도함 
 구체적으로 하고자 하는 것은 
+
   * ticket 을 사용한 가족 식별 
     * 한 가족이 표를 샀다면 티켓 번호가 같을 것이다. 
     * 티켓 가격정보도 가족수만큼 1/n 해서 정상화함 
@@ -275,7 +277,6 @@ sum(ctree_result$predicted == ctree_result$actual) / NROW(ctree_result$actual)  
   * "15세 이하 여자를 우선 구명보트에 태워야 한다"는 규정을 고려해서 해당 조건여부 feature를 추가하고 
   * "구명보트에 가까운 선실에 있는 사람은 생존 가능성이 크다" 는 가설을 검증 
   
-
 주의할 점은 앞서 훈련, 테스트를 분리한 것을 합쳐서 사용함, 
 전체 데이터를 가지고 처리 및 feature 분리를 할 것임 
 
@@ -410,10 +411,6 @@ featureEngrg <- function(data) {
 ## add remaining features to training data frame
 all <- featureEngrg(all)
 
-
-
-
-
   summary(all$Fare)  ## 이 정보와 앞서 EDA쪽을 연결시킴 
 
   ctree_model <- ctree(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked,data = all)
@@ -530,12 +527,19 @@ Some color on the features I've added:
 >  * Deck - levels are as shown in the Titanic cross-section displayed previously. Cabin data >provided for just 23 percent of training data records, so it's tough to give this one much >emphasis.
 >  * Side - subject to the same concern (dearth of data) expressed for Deck
 
-
 ```{r}
 # train.keeps <- c("Fate", "Sex", "Boat.dibs", "Age", "Title", 
 #                 "Class", "Deck", "Side", "Fare", "Fare.pp", 
 #                   "Embarked", "Family","Survived")  ## Survived 을 추가함 
 # df.train.munged <- df.train[train.keeps]
+```
+
+# Fitting a Model
+
+## 로지스틱 회귀분석을 통한 변수 최적화
+
+```{r}
+#plot(train.batch)
 ```
 
 ### Fitting a Model
@@ -549,13 +553,12 @@ Some color on the features I've added:
     
 ```{r}
 
-(Titanic.logit.1 <- glm(Survived ~ Pclass + Sex + Age + SibSp +  Parch + Fare + Embarked
+(Titanic.logit.1 <- glm(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked
         + maybe_parent + maybe_child + avg_prob + avg_parent_prob + avg_child_prob,data=train.batch, family=binomial("logit")))
 
-  
 # 이에 대한 p-value 는 아래와 같이 구함 
-### The deviance was reduced by 363(951-588) points on 713-699=14 degrees of freedom (DF), a significant reduction..
-1 - pchisq((951-588), df=(713-699))  ## 0 유의미한 차이가 있고, 모델이 잘 수행한다고 봐야 ??  
+### The deviance was reduced by 332.2(950.9-618.7) points on 713-705=8 degrees of freedom (DF), a significant reduction..
+1 - pchisq((765.4-464.5), df=(568-554))  ## 0 유의미한 차이가 있고, 모델이 잘 수행한다고 봐야 ??  
                        
 ```
 
@@ -571,76 +574,6 @@ Some color on the features I've added:
 ```{r}
 # anova(Titanic.logit.1)
 anova(Titanic.logit.1, test="Chisq")
-```
-```
-Analysis of Deviance Table
-
-Model: binomial, link: logit
-
-Response: Survived
-
-Terms added sequentially (first to last)
-
-                Df Deviance Resid. Df Resid. Dev Pr(>Chi)    
-NULL                              713        951             
-Pclass           2     81.4       711        869  < 2e-16 ***
-Sex              1    197.4       710        672  < 2e-16 ***
-Age              1     23.7       709        648  1.1e-06 ***
-SibSp            1     13.9       708        634  0.00019 ***
-Parch            1      0.1       707        634  0.75928    
-Fare             1      0.8       706        633  0.35847    
-Embarked         2      4.4       704        629  0.10924    
-maybe_parent     1      1.0       703        628  0.30586    
-maybe_child      1      3.3       702        625  0.06899 .  
-avg_prob         1     33.2       701        592  8.4e-09 ***
-avg_parent_prob  1      3.1       700        588  0.07945 .  
-avg_child_prob   1      0.7       699        588  0.41156    
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-```
->  * 분산분석(Analysis of variance, ANOVA, 변량분석)은 통계학에서 두 개 이상 다수의 집단을 비교하고자 할 때 집단 내의 분산,  총평균과 각 집단의 평균의 차이에 의해 생긴 집단 간 분산의 비교를 통해 만들어진 F분포를 이용하여 가설검정을 하는 방법이다. 
-
-```{r}
-summary(Titanic.logit.1)
-```
-```
-Call:
-glm(formula = Survived ~ Pclass + Sex + Age + SibSp + Parch + 
-    Fare + Embarked + maybe_parent + maybe_child + avg_prob + 
-    avg_parent_prob + avg_child_prob, family = binomial("logit"), 
-    data = train.batch)
-
-Deviance Residuals: 
-   Min      1Q  Median      3Q     Max  
--2.370  -0.503  -0.404   0.563   2.433  
-
-Coefficients:
-                  Estimate Std. Error z value Pr(>|z|)    
-(Intercept)       4.583981   0.568258    8.07  7.2e-16 ***
-Pclass2          -1.014721   0.376548   -2.69  0.00704 ** 
-Pclass3          -1.358774   0.387583   -3.51  0.00046 ***
-Sexmale          -1.559340   0.321003   -4.86  1.2e-06 ***
-Age              -0.034060   0.010318   -3.30  0.00096 ***
-SibSp            -0.251189   0.134668   -1.87  0.06215 .  
-Parch            -0.109198   0.194657   -0.56  0.57481    
-Fare              0.000854   0.002622    0.33  0.74477    
-EmbarkedQ         0.028816   0.435883    0.07  0.94729    
-EmbarkedS        -0.391841   0.275128   -1.42  0.15438    
-maybe_parentTRUE -0.225703   0.425974   -0.53  0.59622    
-maybe_childTRUE   0.075726   0.444919    0.17  0.86485    
-avg_prob         -1.325760   4.737066   -0.28  0.77958    
-avg_parent_prob   0.427873   2.323146    0.18  0.85387    
-avg_child_prob   -2.113274   2.565825   -0.82  0.41015    
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-(Dispersion parameter for binomial family taken to be 1)
-
-    Null deviance: 950.86  on 713  degrees of freedom
-Residual deviance: 587.76  on 699  degrees of freedom
-AIC: 617.8
-
-Number of Fisher Scoring iterations: 5
 ```
 
 Deviance (편차), Resid. Df (Residual degrees of freedom, 잔차 자유도), Resid. Dev(Residual Deviance, 잔차 편차)
@@ -661,39 +594,11 @@ Deviance (편차), Resid. Df (Residual degrees of freedom, 잔차 자유도), Re
 
 
 ```{r}
-Titanic.logit.2 <- glm(Survived ~ Sex + Pclass + Age + SibSp + Title + avg_prob, data = train.batch, family=binomial("logit"))
+Titanic.logit.2 <- glm(Survived ~ Sex + Pclass + Age + avg_prob, data = train.batch, family=binomial("logit"))
 anova(Titanic.logit.2, test="Chisq")
-summary(Titanic.logit.2)
+
 ```
-```
-Call:
-glm(formula = Survived ~ Sex + Pclass + Age + SibSp + avg_prob, 
-    family = binomial("logit"), data = train.batch)
-
-Deviance Residuals: 
-   Min      1Q  Median      3Q     Max  
--2.332  -0.522  -0.402   0.553   2.416  
-
-Coefficients:
-            Estimate Std. Error z value Pr(>|z|)    
-(Intercept)  4.52839    0.45538    9.94  < 2e-16 ***
-Sexmale     -1.42133    0.29710   -4.78  1.7e-06 ***
-Pclass2     -1.02080    0.32564   -3.13   0.0017 ** 
-Pclass3     -1.38345    0.32689   -4.23  2.3e-05 ***
-Age         -0.03761    0.00907   -4.15  3.4e-05 ***
-SibSp       -0.28892    0.12034   -2.40   0.0164 *  
-avg_prob    -3.28353    0.55469   -5.92  3.2e-09 ***
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-(Dispersion parameter for binomial family taken to be 1)
-
-    Null deviance: 950.86  on 713  degrees of freedom
-Residual deviance: 595.12  on 707  degrees of freedom
-AIC: 609.1
-
-Number of Fisher Scoring iterations: 5
-```
+  
   
   Time to shift the model fitting to a higher gear. Henceforth, I'm going to use the train function in Kuhn's caret package to fit binary logistic regression models, as well as models built using other methods.
 
@@ -705,7 +610,7 @@ All of these things I want -- 3x 10-fold CV, estimation of class probabilities, 
     
 
     
-![alt text](/resource/k_fold_crossvalidation.PNG)
+![alt text](./image/k_fold_crossvalidation.PNG)
 
    * 교차 검증 후 테스트 
     * 데이터를 훈련 데이터와 테스트 데이터로 분리함 
@@ -721,10 +626,10 @@ All of these things I want -- 3x 10-fold CV, estimation of class probabilities, 
     
     * Trainnig Data의 갯수
       * 많은면 많을 수록 좋다. 하지만 보다 중요한 것은 제대로 된 데이터를 가지고 있는 것
-        * ![alt text](/resource/training_curve.png)
+        * ![alt text](./image/training_curve.png)
     * [과적합(Overfiting)](https://en.wikipedia.org/wiki/Overfitting)
       * 많은 데이터를 Train 하게되면 unseen 데이터에 대해 낮은 예측력이 생길 수 있다.  
-        * ![alt text](/resource/overfilt.PNG)
+        * ![alt text](./imgae/overfilt.PNG)
 
 ```{r}
 cv.ctrl <- trainControl(method = "repeatedcv", repeats = 3,
@@ -749,34 +654,6 @@ glm.tune.1 <- train(Survived ~ Sex + Pclass + Age + avg_prob
 glm.tune.1
 summary(glm.tune.1)
 ```
-```
-Call:
-NULL
-
-Deviance Residuals: 
-   Min      1Q  Median      3Q     Max  
--2.347  -0.520  -0.403   0.540   2.433  
-
-Coefficients:
-            Estimate Std. Error z value Pr(>|z|)    
-(Intercept)   4.1525     0.4206    9.87  < 2e-16 ***
-Sexmale      -1.2811     0.2849   -4.50  6.9e-06 ***
-Pclass2      -0.9624     0.3246   -2.97  0.00302 ** 
-Pclass3      -1.3000     0.3228   -4.03  5.6e-05 ***
-Age          -0.0310     0.0085   -3.65  0.00026 ***
-avg_prob     -3.4842     0.5444   -6.40  1.6e-10 ***
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-(Dispersion parameter for binomial family taken to be 1)
-
-    Null deviance: 950.86  on 713  degrees of freedom
-Residual deviance: 601.92  on 708  degrees of freedom
-AIC: 613.9
-
-Number of Fisher Scoring iterations: 5
-
-```
 
 > 기존 코드보다는 결과가 좋아짐 
 
@@ -796,92 +673,19 @@ glm.tune.2 <- train(Survived ~ Sex + Pclass + Age + avg_prob + I(Embarked=="S")
                       , trControl = cv.ctrl)
 summary(glm.tune.2)
 ```
-```
-Call:
-NULL
 
-Deviance Residuals: 
-   Min      1Q  Median      3Q     Max  
--2.340  -0.527  -0.380   0.572   2.479  
-
-Coefficients:
-                         Estimate Std. Error z value Pr(>|z|)    
-(Intercept)               4.39308    0.44238    9.93  < 2e-16 ***
-Sexmale                  -1.26649    0.28731   -4.41  1.0e-05 ***
-Pclass2                  -0.84230    0.32766   -2.57   0.0102 *  
-Pclass3                  -1.28945    0.32407   -3.98  6.9e-05 ***
-Age                      -0.03084    0.00852   -3.62   0.0003 ***
-avg_prob                 -3.38705    0.54730   -6.19  6.1e-10 ***
-`I(Embarked == "S")TRUE` -0.48024    0.23063   -2.08   0.0373 *  
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-(Dispersion parameter for binomial family taken to be 1)
-
-    Null deviance: 950.86  on 713  degrees of freedom
-Residual deviance: 597.61  on 707  degrees of freedom
-AIC: 611.6
-
-Number of Fisher Scoring iterations: 5
-
-```
 As I discussed earlier, the 'Title' feature addresses more than one theme. For that reason, I believe it has real potential to improve this model. Besides, I put a good chunk of effort into it, so why not give it a go?
 
 Title에서 중요한 영향을 줄 수 있는 잠재력이 있어 보임
 
 ```{r}
 set.seed(35)
-glm.tune.3 <- train(Survived ~ Sex + Pclass + Age + Title + avg_prob + I(Embarked=="S")
+glm.tune.3 <- train(Survived ~ Sex + Pclass + Age + avg_prob + I(Embarked=="S")
                     , data = train.batch
                     , method = "glm"
                     ,metric = "ROC"
                     , trControl = cv.ctrl)
 summary(glm.tune.3)
-```
-```
-Call:
-NULL
-
-Deviance Residuals: 
-   Min      1Q  Median      3Q     Max  
--2.465  -0.527  -0.363   0.528   2.510  
-
-Coefficients: (13 not defined because of singularities)
-                         Estimate Std. Error z value Pr(>|z|)    
-(Intercept)               16.4832   618.7467    0.03   0.9787    
-Sexmale                  -13.7742   618.7468   -0.02   0.9822    
-Pclass2                   -0.9400     0.3393   -2.77   0.0056 ** 
-Pclass3                   -1.4255     0.3405   -4.19  2.8e-05 ***
-Age                       -0.0299     0.0106   -2.83   0.0047 ** 
-TitleCol                       NA         NA      NA       NA    
-TitleMajor                     NA         NA      NA       NA    
-TitleSir                       NA         NA      NA       NA    
-TitleLady                      NA         NA      NA       NA    
-TitleRev                       NA         NA      NA       NA    
-TitleDr                        NA         NA      NA       NA    
-TitleDon                       NA         NA      NA       NA    
-TitleJonkheer                  NA         NA      NA       NA    
-`Titlethe Countess`            NA         NA      NA       NA    
-TitleMrs                 -11.5780   618.7465   -0.02   0.9851    
-TitleMs                        NA         NA      NA       NA    
-TitleMr                    0.2400     0.5960    0.40   0.6872    
-TitleMme                       NA         NA      NA       NA    
-TitleMlle                      NA         NA      NA       NA    
-TitleMiss                -12.3745   618.7465   -0.02   0.9840    
-TitleMaster                1.1150     0.8183    1.36   0.1730    
-TitleNoble                     NA         NA      NA       NA    
-avg_prob                  -3.0873     0.5981   -5.16  2.4e-07 ***
-`I(Embarked == "S")TRUE`  -0.5588     0.2329   -2.40   0.0164 *  
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-(Dispersion parameter for binomial family taken to be 1)
-
-    Null deviance: 950.86  on 713  degrees of freedom
-Residual deviance: 588.06  on 703  degrees of freedom
-AIC: 610.1
-
-Number of Fisher Scoring iterations: 13
 ```
 
 Nice! That gave us our first material decline in the residual deviance. Since the Title feature seems to give us everything that Age did (and more), I'm going to drop Age from the formula. I will also collapse the titles “Miss” and “Mrs” and leave a duo of Title-related factors which should represent the “women and children first” theme well.
@@ -906,48 +710,17 @@ Remember that there were a lot of male passengers in third class. Given the “w
 
 ```{r}
 set.seed(35)
-glm.tune.5 <- train(Fate ~ Class + I(Title=="Mr") + I(Title=="Noble") + Age + avg_prob + Family + I(Embarked=="S") + I(Title=="Mr"&Class=="Third")
+glm.tune.5 <- train(Fate ~ Class + I(Title=="Mr") + I(Title=="Noble") + avg_child_prob + Age + Family + I(Embarked=="S") + I(Title=="Mr"&Class=="Third")
                     , data = train.batch
                     , method = "glm"
                     , metric = "ROC"
                     , trControl = cv.ctrl)
 summary(glm.tune.5)
 ```
-```
-Call:
-NULL
 
-Deviance Residuals: 
-   Min      1Q  Median      3Q     Max  
--2.967  -0.561  -0.412   0.347   2.439  
+가장 낮은 AIC 도출 .. 
 
-Coefficients:
-                                          Estimate Std. Error z value Pr(>|z|)    
-(Intercept)                                 5.9626     0.6857    8.70  < 2e-16 ***
-ClassSecond                                -1.4998     0.4430   -3.39  0.00071 ***
-ClassThird                                 -3.4332     0.6477   -5.30  1.2e-07 ***
-`I(Title == "Mr")TRUE`                     -3.6533     0.6301   -5.80  6.7e-09 ***
-`I(Title == "Noble")TRUE`                  -3.3299     0.7764   -4.29  1.8e-05 ***
-Age                                        -0.0291     0.0100   -2.91  0.00364 ** 
-avg_prob                                   -2.2605     0.6815   -3.32  0.00091 ***
-Family                                     -0.2611     0.0879   -2.97  0.00296 ** 
-`I(Embarked == "S")TRUE`                   -0.4928     0.2337   -2.11  0.03495 *  
-`I(Title == "Mr" & Class == "Third")TRUE`   2.3587     0.5951    3.96  7.4e-05 ***
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-(Dispersion parameter for binomial family taken to be 1)
-
-    Null deviance: 950.86  on 713  degrees of freedom
-Residual deviance: 562.68  on 704  degrees of freedom
-AIC: 582.7
-
-Number of Fisher Scoring iterations: 6
-```
-
-가장 낮은 AIC가 도출됨 
-
-#### Other Models 
+# Other Models 
 
 지금까지 새로운 feature 를 생성해 보고, 변수의 특정 조건 연산을 통해 feature를 추가해 보기도 하였음 ( `I(Title=="Mr"&Class=="Third")`)
 
@@ -965,6 +738,139 @@ Number of Fisher Scoring iterations: 6
 여기서는 boosting -> 앙상블 -> 보다 발전적인 Random Forest 순으로 살펴봄   
 
 Logistic regression is certainly not the only binary classification model available. There are plenty more ???- perhaps too many for some data scientists to digest. For purpose of illustration, I'll simply take the logistic regression model formula from glm.tune.1 and pass it through train() for each of three other model types, with one new twist: tuning variables specific to each model.
+
+
+## SVM (support vector machine)
+
+  * 서포트 벡터머신은 서로 다른 분류에 속한 데이터 간에 간격이 최대가 되는 선(또는 평면)을 찾아 이를 기준으로 데이터를 분류하는 모델임  
+    ![SVM개념설명](https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Svm_max_sep_hyperplane_with_margin.png/556px-Svm_max_sep_hyperplane_with_margin.png)  
+    * 서포트 벡터 머신은 각 분류에 속하는 데이터로부터 같은 간격으로, 그리고 최대로 멀리 떨어진 선 또는 평면을 찾음 
+    * 이러한 선 또는 평면을 최대 여백 초평면(Maximum Margin Hyperplane) 이라고 하고, 이 평면이 분류를 나누는 기준이 됨 
+    * 하지만, 모든 데이터를 항상 초평면으로 나눌 수 있는 것은 아님
+      * 아래 왼쪽의 경우, 곡선 기준을 통해 평면을 찾을 수 없기 때문에 주어진 데이터를 적절한 고차원으로 옮긴 뒤 변환된 차원에서 서포트 벡터 머신을 사용해 초평면을 찾는 방식을 사용하는데 이를 커널 트릭이라고 함 
+      ![SVM개념설명](https://upload.wikimedia.org/wikipedia/commons/1/1b/Kernel_Machine.png) 
+      * 커널 트릭에서는 실제로 데이터를 고차원으로 변환하는 대신 고차원에서 벡터 간 내적 계산을 했을 때와 같은 값을 반환하는 함수들을 사용한다. 
+        * 이 함수들을 사용하면 마치 데이터를 고차원으로 옮긴 듯한 효과를 일으키면서도 데이터를 고차원으로 옮기는데 따른 계산 비용 증가는 피할 수 있고 .. 이러한 함수들을 커널함수라고 부른다. 
+        * 대표적인 커널 함수로 다항 커널(Polynomial Kernel), 가우시안 커널(Gaussian Kernel),  레이디얼 베이스 함수(Radial Basis Function Kernel) 이 있음
+        * 또한 이들 커널 함수는 커널 파라미터를 갖고, 이 파라미터를 조정함으로써 최적화를 할 수 있다.  
+        * 여기서는 Radial Basis Function Kernel 함수를 사용하고,  tuneLength = 9를 통해 Cost 파라미터 C (제약을 위반하는 비용을 명시하는 수임 ) 값의 범위 c(0.25, 0.5, 1, 2, 4, 8, 16, 32, 64) 에서의 성능을 표시함으로써 적절한 파라미터값을 찾는 과정을 보여 줄 것이다. 
+    * SVM 의 장점은   
+      * 범주나 수치 예측 문제에 대해 사용할 수 있음 
+      * 노이즈 데이터에 영향을 크게 받지 않고 잘 과적합화되지 않음 
+      * 신경망보다 사용하기 쉽다. 
+      * 높은 정확도로 인기가 높음 
+    * SVM의 단점은 
+      * 최적의 모델을 찾기 위해 커널과 모델에서 매개변수의 여러 가지 조합 테스트가 필요함 
+      * 특히 입력 데이터셋이 예제 개수와 속성의 수가 많다면 훈련이 느릴 수 있음 
+      * 해석하기 불가능하지는 않지만, 어렵고 복잡한 블랙박스를 만든다. 
+  * 서포트 벡터머신에 대해 보다 자세한 설명은 아래 링크를 참고 
+    * https://ko.wikipedia.org/wiki/%EC%84%9C%ED%8F%AC%ED%8A%B8_%EB%B2%A1%ED%84%B0_%EB%A8%B8%EC%8B%A0음
+
+
+```{r}
+# install.packages("kernlab")
+suppressPackageStartupMessages({
+  library(kernlab)
+})
+
+set.seed(35)
+svm.tune <- train(Survived ~ Sex + Pclass + Age + avg_prob, 
+                  data = train.batch,
+                  method = "svmRadial",
+                  tuneLength = 9,
+                  preProcess = c("center", "scale"),
+                  metric = "ROC",
+                  trControl = cv.ctrl)
+
+svm.tune
+plot(svm.tune)
+```
+
+cost 파라미터에 대한 ROC 값을 보여준다. 여기서는 c=2 에서 ROC 값이 가장 크게나옴 
+
+
+
+## 랜덤포레스트
+
+  * 앙상블 학습 기법을 사용한 모델임 
+    * 앙상블 학습 : 주어진 데이터로부터 여러개의 모델을 학습한 다음, 예측 시 여러 모델의 예측 결과들을 종합해 사용하여 정확도를 높이는 기법
+    * 여러 앙상블 기법 중 배깅(bagging) 이라는게 있고,
+      * 하나의 학습 알고리즘을 사용해 여러 모델을 생성하는 방식임, 모델의 예측은 투표(분류의 경우)나 투표(수치 예측의 경우)을 사용해 합함 
+      * decision tree 모델에 추가적인 다양성을 더하기 위해 무작위 속성선택과 배깅을 접목한 것이 랜덤포레스트(random forest) 이다. 
+      * 랜덤포레스트(random forest) 장점
+        * 대부분 문제에 잘 수행되는 다용도 모델임 
+        * 노이즈 데이터와 결측치 데이터를 다룰 수 있음
+        * 가장 중요한 속성을 선택 할 수 있음
+        * 극단적으로 큰 속성이나 예제를 가진 데이터를 다룰 수 있음 
+        * 배깅 쪽이 그렇듯 개별적인 약한 학습기를 훈련할 때 이전의 약한 학습기으 훈련에 의존하지 않기 때문에 훈련 과정을 별렬화시킬 수 있음 
+      * 단점으로는, 
+        * decision tree 와 달리 모델이 쉽게 해석되지 않음 (원리를 제3자에게 설명하기 어려움)
+        * 데이터에 대한 모델을 조절하는 많은 작업이 필요함 
+  * 보다 자세한 랜덤포레스트에서 대해서는 아래 링크를 확인   
+    * https://ko.wikipedia.org/wiki/%EB%9E%9C%EB%8D%A4_%ED%8F%AC%EB%A0%88%EC%8A%A4%ED%8A%B8
+
+```{r}
+## 중요변수를 확인해 보고자 함 
+# install.packages("randomForest")
+suppressPackageStartupMessages({
+  library(randomForest)
+})
+rf.tune_temp <- randomForest(Survived ~ Sex + Pclass + Age + avg_prob + Embarked
+                             , data = train.batch, importance=TRUE)
+importance(rf.tune_temp)
+varImpPlot(rf.tune_temp, main="varImpPlot of titanic")
+
+```
+
+정확도 측면(MeanDecreaseAccuracy) 과 노드 불순도 개선(MeanDecreaseGini) 측면에서 변수 중요도를 확인할 수 있음  
+
+
+또한, 여기서 mtry 파라미터 (노드를 나눌 기준을 정할 때 고려할 변수의 수) 최적화에 대해서 살펴보겠음.(기본값이 자동으로 잘 부여된다고는 함)
+실제 feature 수가 많지 않아서 mtry 값은 크지 않은 값으로 사용하면 되겠지만,   
+한번 살펴보는데 의미를 두고 mtry=2 와 mtry=3 둘 중 어떤 경우가 성능이 좋은지 보겠음 
+
+```{r}
+## 랜덤포레스트 파라미터 최적화
+rf.grid <- data.frame(.mtry = c(2, 3)) ## mtry : 노드를 나눌 기준을 정할 때 고려할 변수의 수 
+set.seed(35)
+rf.tune <- train(Survived ~ Sex + Pclass + Age + avg_prob, 
+                 data = train.batch,
+                 method = "rf",
+                 metric = "ROC",
+                 tuneGrid = rf.grid,
+                 trControl = cv.ctrl)
+```
+
+역시 mtry=2 에서보다 좋은 결과가 나왔음. 
+아래와 같이 실제는 파라미터를 튜닝한 모델을 사용할 수 있겠음 
+
+```{r}
+rf.tune
+plot(rf.tune)
+
+## 최적값을 찾았으니, mtry = 2
+rf.grid <- data.frame(.mtry = c(2))
+(rf.tune <- train(Survived ~ Sex + Pclass + Age + avg_prob, 
+                 data = train.batch,
+                 method = "rf",
+                 metric = "ROC",
+                 tuneGrid = rf.grid,
+                 trControl = cv.ctrl)
+ )
+
+rf.tune2 <- randomForest(Survived ~ Sex + Pclass + Age + avg_prob, data = train.batch,mtry = 2)
+
+```
+
+
+
+
+## adaboosting 
+
+  * Boosting 방식의 알고리즘  
+    * 약한 모델을 좀 더 추가해 임의의 경계 값에 대한 성능을 향상 시키는 개념 
+      * 엄청한 학습 시간과 파리미터 서치에 소요되는 시간과 노력을 감수해야 함 
+      * 하지만,  Bagging 보다는 boosting 쪽 성능이 좋다고 알려져 있음 
 
 First up is `boosting`. I can instruct train to fit a stochastic boosting model for the binary response Fate using the adapackage and a range of values for each of three tuning parameters. Concretely, when fitting a model using train with method=”ada”, one has three levers to tweak: `iter` (number of boosting iterations, default=50), `maxdepth` (depth of trees), and `nu` (shrinkage parameter, default=1). Create a data frame with these three variables as column names and one row per tuning variable combination, and you're good to go. Here is just one example of a tuning grid for ada:
 
@@ -1045,97 +951,9 @@ ada.tune
 
 iter = 100, maxdepth = 4 and nu = 0.1 조건에서 ROC 값이 가장 큼  
 
-Time to give the popular Random Forest (RF) model a shot at the Titanic challenge. 
-
-랜덤포레스트에서 대해서는 아래 링크를 확인   
-https://ko.wikipedia.org/wiki/%EB%9E%9C%EB%8D%A4_%ED%8F%AC%EB%A0%88%EC%8A%A4%ED%8A%B8
-
-The number of randomly pre-selected predictor variables for each node, designated mtry, is the sole parameter available for tuning an RF with train. Since the number of features is so small, there really isn't much scope for tuning mtry in this case. Nevertheless, I'll demonstrate here how it can be done. Let's have mtry=2 and mtry=3 duke it out over the Titanic data.
-
-```{r}
-rf.grid <- data.frame(.mtry = c(2, 3)) ## mtry : 노드를 나눌 기준을 정할 때 고려할 변수의 수 
-set.seed(35)
-rf.tune <- train(Survived ~ Sex + Pclass + Age + avg_prob, 
-                 data = train.batch,
-                 method = "rf",
-                 metric = "ROC",
-                 tuneGrid = rf.grid,
-                 trControl = cv.ctrl)
-```
-
-Strobl et al suggested setting mtry at the square root of the number of variables. In this case, that would be mtry = 2, which did produce the better RF model.
 
 
-train 함수에 대해서 .. 제대로 공부할 필요가 있어 보임   
-
-```{r}
-rf.tune
-plot(rf.tune)
-
-## 최적값을 찾았으니, mtry = 2
-rf.grid <- data.frame(.mtry = c(2))
-(rf.tune <- train(Survived ~ Sex + Pclass + Age + avg_prob, 
-                 data = train.batch,
-                 method = "rf",
-                 metric = "ROC",
-                 tuneGrid = rf.grid,
-                 trControl = cv.ctrl)
- )
-
-# ## Age 에 null 값이 있는지 확인 
-# missmap(train.batch, main="Titanic Training Data - Missings Map", 
-#         col=c("yellow", "black"), legend=FALSE)
-# missmap(all, main="Titanic Training Data - Missings Map", 
-#         col=c("yellow", "black"), legend=FALSE)
-
-
-rf.tune2 <- randomForest(Survived ~ Sex + Pclass + Age + avg_prob, data = train.batch,mtry = 2)
-
-
-```
-
-
-
-`importance = TRUE` 를 통해 변수 중요도를 확인할 수 있겠음,,, 이를 varImpPlot 을 통해서 시각화 할 수도 있겠고 .. 정규화 랜덤 포레스트 를 통해 좀 더 좋은 결과가 가능한지 확인해 볼 수 있겠음 
-
-
-And finally, we'll fit a support vector machine (SVM) model to the Titanic data.
-
-서포트 벡터머신 관련해서는 아래 링크를 참고 
-https://ko.wikipedia.org/wiki/%EC%84%9C%ED%8F%AC%ED%8A%B8_%EB%B2%A1%ED%84%B0_%EB%A8%B8%EC%8B%A0
-
-
-
-There are two functions which can be tuned for SVM using train. The default value for one of them -??? sigest ???- produces good results on most occasions. The `default grid` of cost parameter C (제약을 위반하는 비용을 명시하는 수임 ) is 0.25, 0.5, and 1. If we set train argument tuneLength = 9, the grid expands to c(0.25, 0.5, 1, 2, 4, 8, 16, 32, 64). As SVM is considered sensitive to the scale and magnitude of the presented features, I'll use the preProcess argument to instruct train to make arrangements for normalizing the data within resampling loops.
-
-```{r}
-# install.packages("kernlab")
-suppressPackageStartupMessages({
-  library(kernlab)
-})
-
-set.seed(35)
-svm.tune <- train(Survived ~ Sex + Pclass + Age + avg_prob, 
-                  data = train.batch,
-                  method = "svmRadial",
-                  tuneLength = 9,
-                  preProcess = c("center", "scale"),
-                  metric = "ROC",
-                  trControl = cv.ctrl)
-```
-
-You may have noticed that the same random number seed was set prior to fitting each model. This ensures that the same resampling sets are used for each model, enabling an "apple-to-apples" comparison of the resampling profiles between models during model evaluation.
-
-```{r}
-svm.tune
-plot(svm.tune)
-```
-
-Although the model output above does display ROC by cost parameter value, the following graph makes it abundantly clear that the ROC starts dropping at C=4. 
-
-
-
-### Model Evaluation
+# Model Evaluation
 
 With all four models in hand, I can begin to evaluate their performance by whipping together some cross-tabulations of the observed and predicted Fate for the passengers in the test.batch data. caret makes this easy with the confusionMatrix function.
 
@@ -1186,7 +1004,7 @@ glm.probs <- predict(glm.tune.1, test.batch, type = "prob")  ## 5 -> 1 로 변�
 glm.ROC <- roc(response = test.batch$Survived,
                 predictor = glm.probs$Survived,
                 levels = levels(test.batch$Survived))
-plot(glm.ROC, type="S")     ## 에러 발생 
+plot(glm.ROC, type="S")    
 # Area under the curve: 0.8609 
 
 
@@ -1247,48 +1065,3 @@ The next graph (my last, scout's honor) compares the four models on the basis of
 
 
 Let me reiterate the point I made in the disclaimer, way up at the top of this tl;dr page: This journey, paved with text and graphs, was never intended to reveal a path to discovery of the best model for predicting the fate of the passengers referenced in the Titanic data set. I sought only to demonstrate use of a subset of the tools ??? methods and software (R in this case) ??? a data scientist can employ in pursuit of a binary classification model.
-
-### Cast Your Votes
-
-Given everything we've been through here, it would be a shame if we didn't submit at least one of the four models to the Titanic competition at Kaggle. Here is a script which munges the data Kaggle provided in their test.csv file, uses that data and the logistic regression model glm.tune.5 to predict the survival (or not) of passengers listed in the test file, links the predictions to the PassengerId in a data frame, and writes those results to a submission-ready csv file.
-
-```{r}
-# # get titles
-df.infer$Title <- getTitle(df.infer)
-
-# impute missing Age values
-df.infer$Title <- changeTitles(df.infer, c("Dona", "Ms"), "Mrs")
-titles.na.test <- c("Master", "Mrs", "Miss", "Mr")
-df.infer$Age <- imputeMedian(df.infer$Age, df.infer$Title, titles.na.test)
-
-# consolidate titles
-df.infer$Title <- changeTitles(df.infer, c("Col", "Dr", "Rev"), "Noble")
-df.infer$Title <- changeTitles(df.infer, c("Mlle", "Mme"), "Miss")
-df.infer$Title <- as.factor(df.infer$Title)
-
-# impute missing fares
-df.infer$Fare[ which( df.infer$Fare == 0)] <- NA
-df.infer$Fare <- imputeMedian(df.infer$Fare, df.infer$Pclass, 
-                                as.numeric(levels(df.infer$Pclass)))
-# add the other features
-df.infer <- featureEngrg(df.infer)
-
-# data prepped for casting predictions
-test.keeps <- train.keeps[-1]
-pred.these <- df.infer[test.keeps]
-
-# use the logistic regression model to generate predictions
-Survived <- predict(rf.tune, newdata = pred.these)
-
-# reformat predictions to 0 or 1 and link to PassengerId in a data frame
-Survived <- revalue(Survived, c("Survived" = 1, "Perished" = 0))
-predictions <- as.data.frame(Survived)
-predictions$PassengerId <- df.infer$PassengerId
-
-# write predictions to csv file for submission to Kaggle
-setwd("C:\\")
-write.csv(predictions[,c("PassengerId", "Survived")], 
-          file="Titanic_predictions.csv", row.names=FALSE, quote=FALSE)
-
-```
-
