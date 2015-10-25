@@ -257,6 +257,58 @@ sum(ctree_result$predicted == ctree_result$actual) / NROW(ctree_result$actual)  
 
 > rpart 대비 성능이 향상되었음    
 
+# 가설생성과 가설 검증을 통한 모델 피팅
+
+1) 가설을 생성
+ - 데이터 탐색을 통하여 데이터의특성들을 확인할 수 있었음
+ - 이러한 데이터를 바탕으로 이 분야의 도메인 지식(knowledge)를 활용하여 새로운 가설을 생서함
+ 
+2) 가설에 필요한 새로운 Feature를 추출
+ - 1)에서 생성한 새로운 가설의 검증하기 위하여 필요한 Feature들을 가지고 있는 정보 내에서 추출함(extract)
+ 
+3) 가설을 검증
+ - 2)에서 생성된 Feature를 이용하여 1)에서 세운 가설이 맞는지 가설을 검증(hypothesis testing)함
+
+가설 1 "가족과의 관계가 생존에 영향을 주었을 것이다."
+> 타이타닉 영화를 보면 OOO이 살기위해 모르는 딸아이의 아빠인척을 하는 장면이 나온다.
+> 이처럼 가족의 생존확률이 높으면 자신의 생존 확률이 높을 것이라고 추정해 볼 수 있다.
+
+가설 2 "아이와 여자가 생존 확률이 높았을 것이다."
+> 타이타닉의 영화를 보면 보트에 아이와 여자를 먼저 태우는 장면을 볼 수 있다.
+> 이처럼 위급한 상황에서 아이와 여자들을 위하여 보트에 탑승을 양보했을 것이라고 추청할 수 있다.
+
+가설 3 "구명 보트에 가까이 있는 탑승자가 생존 확률이 높았을 것이다."
+> 보트는 제한된 수량만이 탐제가 되었다. 이는 타이타닉의 탑승객이 전부 탑승 할 수 없음을 의미하며,
+> 보트에 빠르게 탑승한 인원이 좀 더 생존확률이 높았을 것이라고 추정해 볼 수 있다.
+
+
+여기서는 첫번째와 두번째 가설을 동시에 확인해 볼 예정이다.
+
+가설에 필요한 Feature 추출
+
+전처리
+#    * Embarked 필드는 제일 많은 S 값으로 채워줌 
+
+* 가족관계를 알기위한 Feature를 추출
+  * ticket 을 사용한 가족 식별 
+    * 한 가족이 표를 샀다면 티켓 번호가 같을 것이다. 
+    * 티켓 가격정보도 가족수만큼 1/n 해서 정상화함 
+  * 부모의 생존확률과 자녀의 평균 생존 확률을 파악
+    * 앞에서 부모 자녀 여부를 판단하고 나면 부모의 평균 생존 확률(avg_parent_prob)과 자녀의 평균 생존 확률을 구함
+#  * Age의 null 값을 가족 관계를 통하여유추함 
+#    * 이름을 앞자리를 통하여 과족관계시의 나이를 유추
+Title | 설명
+--- | ---
+Mr: (Mister) | (Mister) for men, regardless of marital status.
+Master | for young men and boys, especially in the UK.
+Ms | for women, regardless of marital status.
+Mz | variation of Ms., used for women who do not wish to disclose their marital status.
+Miss | usually for unmarried women
+Mrs | for married women.
+Mx | is a commonly accepted[1][2] gender-neutral honorific.
+
+#    * 자식의 나이는 부모보다 높을 수 없다. 또한 이름을 통하여 나이를 어느정도 유추가 가능하다.
+
 
 # 새로운 feature 추출
 
@@ -538,15 +590,13 @@ Some color on the features I've added:
 
 ## 로지스틱 회귀분석을 통한 변수 최적화
 
-```{r}
-#plot(train.batch)
-```
-
-### Fitting a Model
+> 추정(estimation)과 추정의 결과를 검증(evaluation)하여 적합한 모델을 만들어 낸다.
 
 #### 로지스틱 회귀분석을 통한 변수 최적화
    * [선형회귀](https://ko.wikipedia.org/wiki/%EC%84%A0%ED%98%95_%ED%9A%8C%EA%B7%80)
-    * [종속 변수](http://terms.naver.com/entry.nhn?docId=76283&cid=42155&categoryId=42155) y와 한 개 이상의 [독립 변수](http://terms.naver.com/entry.nhn?docId=76283&cid=42155&categoryId=42155) (또는 설명 변수) X와의 선형 상관 관계를 모델링하는 회귀분석
+    * ![alt text](https://commons.wikimedia.org/wiki/File:Normdist_regression.png?uselang=ko)
+    * [종속 변수](http://terms.naver.com/entry.nhn?docId=76283&cid=42155&categoryId=42155) y와 한 개 이상의 [독립 변수](http://terms.naver.com/entry.nhn?docId=76283&cid=42155&categoryId=42155) (또는 설명 변수) X와의 선형 상관 관계를 모델링하는 회귀분석 기법
+    * 
     * 한 개의 설명 변수에 기반한 경우에는 단순 선형 회귀, 둘 이상의 설명 변수에 기반한 경우에는 다중 선형 회귀라고 한다.
    * [로지스틱회귀](https://ko.wikipedia.org/wiki/%EB%A1%9C%EC%A7%80%EC%8A%A4%ED%8B%B1_%ED%9A%8C%EA%B7%80)
     *  선형 회귀 분석과는 다르게 종속 변수가 범주형 데이터를 대상으로 함
