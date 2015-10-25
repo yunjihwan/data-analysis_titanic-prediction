@@ -257,46 +257,47 @@ sum(ctree_result$predicted == ctree_result$actual) / NROW(ctree_result$actual)  
 
 > rpart 대비 성능이 향상되었음    
 
-# 가설생성과 가설 검증을 통한 모델 피팅
+---
 
-1) 가설을 생성
- - 데이터 탐색을 통하여 데이터의특성들을 확인할 수 있었음
- - 이러한 데이터를 바탕으로 이 분야의 도메인 지식(knowledge)를 활용하여 새로운 가설을 생서함
+### 가설생성과 가설 검증을 통한 모델 피팅
+
+1. 가설을 생성
+    * 데이터 탐색을 통하여 데이터의특성들을 확인할 수 있었음
+    * 이러한 데이터를 바탕으로 이 분야의 도메인 지식(knowledge)를 활용하여 새로운 가설을 생서함
+    
+2. 가설에 필요한 Feature를 추출
+    * 1 에서 생성한 새로운 가설의 검증하기 위하여 필요한 Feature들을 가지고 있는 정보 내에서 추출함(extract)
  
-2) 가설에 필요한 새로운 Feature를 추출
- - 1)에서 생성한 새로운 가설의 검증하기 위하여 필요한 Feature들을 가지고 있는 정보 내에서 추출함(extract)
- 
-3) 가설을 검증
- - 2)에서 생성된 Feature를 이용하여 1)에서 세운 가설이 맞는지 가설을 검증(hypothesis testing)함
+3. 가설을 검증
+    * 2 에서 생성된 Feature를 이용하여 1 에서 세운 가설이 맞는지 가설을 검증(hypothesis testing)함  
 
-가설 1 "가족과의 관계가 생존에 영향을 주었을 것이다."
-> 타이타닉 영화를 보면 OOO이 살기위해 모르는 딸아이의 아빠인척을 하는 장면이 나온다.
-> 이처럼 가족의 생존확률이 높으면 자신의 생존 확률이 높을 것이라고 추정해 볼 수 있다.
+### 가설을 생성
 
-가설 2 "아이와 여자가 생존 확률이 높았을 것이다."
-> 타이타닉의 영화를 보면 보트에 아이와 여자를 먼저 태우는 장면을 볼 수 있다.
-> 이처럼 위급한 상황에서 아이와 여자들을 위하여 보트에 탑승을 양보했을 것이라고 추청할 수 있다.
+1. 가설 1 "가족과의 관계가 생존에 영향을 주었을 것이다."
+    * 타이타닉 영화를 보면 OOO이 살기위해 모르는 딸아이의 아빠인척을 하는 장면이 나온다.
+    * 이처럼 가족의 생존확률이 높으면 자신의 생존 확률이 높을 것이라고 추정해 볼 수 있다.
 
-가설 3 "구명 보트에 가까이 있는 탑승자가 생존 확률이 높았을 것이다."
-> 보트는 제한된 수량만이 탐제가 되었다. 이는 타이타닉의 탑승객이 전부 탑승 할 수 없음을 의미하며,
-> 보트에 빠르게 탑승한 인원이 좀 더 생존확률이 높았을 것이라고 추정해 볼 수 있다.
+1. 가설 2 "아이와 여자가 생존 확률이 높았을 것이다."
+    * 타이타닉의 영화를 보면 보트에 아이와 여자를 먼저 태우는 장면을 볼 수 있다.
+    * 이처럼 위급한 상황에서 아이와 여자들을 위하여 보트에 탑승을 양보했을 것이라고 추청할 수 있다.
 
+1. 가설 3 "구명 보트에 가까이 있는 탑승자가 생존 확률이 높았을 것이다."
+    * 보트는 제한된 수량만이 탐제가 되었다. 이는 타이타닉의 탑승객이 전부 탑승 할 수 없음을 의미하며,
+    * 보트에 빠르게 탑승한 인원이 좀 더 생존확률이 높았을 것이라고 추정해 볼 수 있다.
 
 여기서는 첫번째와 두번째 가설을 동시에 확인해 볼 예정이다.
 
-가설에 필요한 Feature 추출
+### 가설에 필요한 Feature를 추출
 
-전처리
-#    * Embarked 필드는 제일 많은 S 값으로 채워줌 
-
-* 가족관계를 알기위한 Feature를 추출
-  * ticket 을 사용한 가족 식별 
+  * 가족관계를 알기위해 ticket 을 사용한 가족 식별 
     * 한 가족이 표를 샀다면 티켓 번호가 같을 것이다. 
     * 티켓 가격정보도 가족수만큼 1/n 해서 정상화함 
   * 부모의 생존확률과 자녀의 평균 생존 확률을 파악
     * 앞에서 부모 자녀 여부를 판단하고 나면 부모의 평균 생존 확률(avg_parent_prob)과 자녀의 평균 생존 확률을 구함
-#  * Age의 null 값을 가족 관계를 통하여유추함 
-#    * 이름을 앞자리를 통하여 과족관계시의 나이를 유추
+  * Age의 null 값을 가족 관계를 통하여유추함 
+    * 이름을 앞자리를 통하여 과족관계시의 나이를 유추
+    * 자식의 나이는 부모보다 높을 수 없다. 또한 이름을 통하여 나이를 어느정도 유추가 가능하다.  
+    
 Title | 설명
 --- | ---
 Mr: (Mister) | (Mister) for men, regardless of marital status.
@@ -305,32 +306,12 @@ Ms | for women, regardless of marital status.
 Mz | variation of Ms., used for women who do not wish to disclose their marital status.
 Miss | usually for unmarried women
 Mrs | for married women.
-Mx | is a commonly accepted[1][2] gender-neutral honorific.
+Mx | is a commonly accepted gender-neutral honorific.
 
-#    * 자식의 나이는 부모보다 높을 수 없다. 또한 이름을 통하여 나이를 어느정도 유추가 가능하다.
+* Embarked 필드는 제일 많은 S 값으로 채워줌  
 
-
-# 새로운 feature 추출
-
-  * 계속적으로 모델을 향상시키는 것으로, 
-    * 다른 모델링 기법을 적용하는 방안과
-    * 데이터 내 숨겨진 쓸 만한 다른 특징 값을 찾는 방법이 있음 
-
-여기서는 후자 쪽 접근을 .. 시도함 
-구체적으로 하고자 하는 것은 
-
-  * ticket 을 사용한 가족 식별 
-    * 한 가족이 표를 샀다면 티켓 번호가 같을 것이다. 
-    * 티켓 가격정보도 가족수만큼 1/n 해서 정상화함 
-  * null 값을 적절히 채워 준다. 
-    * 많이 비어 있는 Age 필드를 유추해서 채워본다 
-      * 앞에서 부모 자녀 여부를 판단하고 나면 부모의 평균 생존 확률(avg_parent_prob)과 자녀의 평균 생존 확률을 다음과 같이 구함
-    * Embarked 필드는 제일 많은 S 값으로 채워줌 
-  * "15세 이하 여자를 우선 구명보트에 태워야 한다"는 규정을 고려해서 해당 조건여부 feature를 추가하고 
-  * "구명보트에 가까운 선실에 있는 사람은 생존 가능성이 크다" 는 가설을 검증 
-  
 주의할 점은 앞서 훈련, 테스트를 분리한 것을 합쳐서 사용함, 
-전체 데이터를 가지고 처리 및 feature 분리를 할 것임 
+전체 데이터를 가지고 처리 및 feature 분리를 할 것임
 
 ```{r}
 
@@ -570,21 +551,7 @@ all <- featureEngrg(all)
 
 추가 feature 로 정확도가 상승했는지 확인을 하고,,, (ctree 모델을 통해)
 
-
-Some color on the features I've added:
-
-아래 내용을 그다지 효과가 없었으니 생략. 너무 복잡해 지기만 함   
-
->  * Boat.dibs - assumes all females plus males under 15 get "dibs' on access to a lifeboat. >Filtering by Title="Master" was considered, but the highest age in the training data for males >addressed as "Master" was just 12, and I wanted to account for male teens with Title="Mr" who >could pass for a child.
->  * Deck - levels are as shown in the Titanic cross-section displayed previously. Cabin data >provided for just 23 percent of training data records, so it's tough to give this one much >emphasis.
->  * Side - subject to the same concern (dearth of data) expressed for Deck
-
-```{r}
-# train.keeps <- c("Fate", "Sex", "Boat.dibs", "Age", "Title", 
-#                 "Class", "Deck", "Side", "Fare", "Fare.pp", 
-#                   "Embarked", "Family","Survived")  ## Survived 을 추가함 
-# df.train.munged <- df.train[train.keeps]
-```
+---
 
 # Fitting a Model
 
@@ -594,17 +561,35 @@ Some color on the features I've added:
 
 #### 로지스틱 회귀분석을 통한 변수 최적화
    * [선형회귀](https://ko.wikipedia.org/wiki/%EC%84%A0%ED%98%95_%ED%9A%8C%EA%B7%80)
-    * ![alt text](https://commons.wikimedia.org/wiki/File:Normdist_regression.png?uselang=ko)
+    * ![alt text](https://upload.wikimedia.org/wikipedia/commons/b/be/Normdist_regression.png)
     * [종속 변수](http://terms.naver.com/entry.nhn?docId=76283&cid=42155&categoryId=42155) y와 한 개 이상의 [독립 변수](http://terms.naver.com/entry.nhn?docId=76283&cid=42155&categoryId=42155) (또는 설명 변수) X와의 선형 상관 관계를 모델링하는 회귀분석 기법
-    * 
+    * 회귀식: y'=a+bx   y'=종속 변수(예측 대상) x=독립 변수(y'에 영향을 미치는 변수) a,b는 회계 계수
     * 한 개의 설명 변수에 기반한 경우에는 단순 선형 회귀, 둘 이상의 설명 변수에 기반한 경우에는 다중 선형 회귀라고 한다.
    * [로지스틱회귀](https://ko.wikipedia.org/wiki/%EB%A1%9C%EC%A7%80%EC%8A%A4%ED%8B%B1_%ED%9A%8C%EA%B7%80)
-    *  선형 회귀 분석과는 다르게 종속 변수가 범주형 데이터를 대상으로 함
+    * ![alt text](http://ww2.coastal.edu/kingw/statistics/R-tutorials/images/menarche2.png)
+    * 선형 회귀 분석을 기반으로 종속 변수가 범주형 데이터를 대상으로 함   
+ * 장점
+      * 모든 표본점이 고려된다.
+      * 정확하고 분석자의 주관적 판단이 개입될 여지가 없으므로 객관적이다.
+      * 변수의 움직임의 관계의 정도, 통계적 유의성, 잔차나 분산의 크기를 결정할 수 있다.
+ * 단점
+      * 계산 과정이 복잡하다.
+      * 회귀 분석의 여러 가정이 충족되어야 한다.
+      * UnderFitting 경향이 높음, 정학도가 낮게나올 가능성
+ * 다중공선성(multicollinearity)을 주의
+      * 각 독립변수들간의 강한 상관관계가 있을 수 있음
+      * 독립 변수들 사이의 상호의존도가 높으면 회귀계수의 부호가 바뀌거나 0에 가까운 값으로 나타남
+      * 상관 관계가 높은 변수들 중 하나만 남기고 나머지 변수들을 모형에서 제거 
+   
+---
+    
+참고 설명   
+최대 사후 확률(最大事後確率, maximum a posteriori, MAP)은 베이즈 통계학에서 사후 확률(事後確率)의 최빈값을 가리킨다. 최대 사후 확률에 대응하는 모수(母數, Parameter)는 최대우도(最大尤度, maximum likelihood estimation, MLE)와 마찬가지로 모수의 점 추정으로 사용할 수 있지만, 최대우도에서는 어떤 사건이 일어날 확률을 가장 높이는 모수를 찾는 것에 비해, 최대 사후 확률 모수는 모수의 사전 확률(事前確率)과 결합된 확률을 고려한다는 점이 다르다.
+    
     
 ```{r}
 
-(Titanic.logit.1 <- glm(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked
-        + maybe_parent + maybe_child + avg_prob + avg_parent_prob + avg_child_prob,data=train.batch, family=binomial("logit")))
+(Titanic.logit.1 <- glm(Survived ~ Sex + Pclass + Age + Title + avg_prob + SibSp + Parch + avg_parent_prob + Fare + Embarked + maybe_parent + maybe_child + avg_child_prob,data=train.batch, family=binomial("logit")))
 
 # 이에 대한 p-value 는 아래와 같이 구함 
 ### The deviance was reduced by 332.2(950.9-618.7) points on 713-705=8 degrees of freedom (DF), a significant reduction..
@@ -612,56 +597,58 @@ Some color on the features I've added:
                        
 ```
 
->  * glm으로 logit regression을 만들고, model fit을 확인하려면?
->  * 모델의 적합도를 보는 다른 방법은 model이 데이터를 설명하는 예측력을 따져봄. Pearson chi-square를 계산
->  *1 - pchisq(deviance(model), df.residual(model))
->  *p-value를 통하여 유의미하지 않다는 것을 확인하여 영향이 없다는 귀무가설을 기각 할 수 있다.
+  * glm으로 logit regression을 만들고, model fit을 확인하려면?
+  * model이 데이터를 설명하는 예측력을 따져봄. -> Pearson chi-square를 계산
+    * `1 - pchisq(deviance(model), df.residual(model))`
+  * p-value를 통하여 유의미하지 않다는 것을 확인하여 영향이 없다는 귀무가설을 기각 할 수 있다.
+  * [카이제곱검정](https://ko.wikipedia.org/wiki/%EC%B9%B4%EC%9D%B4%EC%A0%9C%EA%B3%B1_%EA%B2%80%EC%A0%9)
+    
+---
 
-    * [카이제곱검정](https://ko.wikipedia.org/wiki/%EC%B9%B4%EC%9D%B4%EC%A0%9C%EA%B3%B1_%EA%B2%80%EC%A0%95)
-
-추가로 다른 feature 조합 들간의 비교를 위해 `anova()`를 사용 
+추가로 다른 feature 조합 들간의 비교를 위해 `anova()` ([분산분석](https://ko.wikipedia.org/wiki/%EB%B6%84%EC%82%B0%EB%B6%84%EC%84%9D)를 사용    
+  * 평균과 분산을 기초로 여러 집단을 비교하고, 이들 집단의 평균값에 차이가 있는지 가설검정을 하는 통계분석 기법(여러 집단의 continuous variable을 비교) 
 
 ```{r}
 # anova(Titanic.logit.1)
 anova(Titanic.logit.1, test="Chisq")
 ```
 
-Deviance (편차), Resid. Df (Residual degrees of freedom, 잔차 자유도), Resid. Dev(Residual Deviance, 잔차 편차)
+추가로 다른 feature 조합 들간의 비교를 위해 `anova()` ([분산분석](https://ko.wikipedia.org/wiki/%EB%B6%84%EC%82%B0%EB%B6%84%EC%84%9D)를 사용    
+  * 평균과 분산을 기초로 여러 집단을 비교하고, 이들 집단의 평균값에 차이가 있는지 가설검정을 하는 통계분석 기법(여러 집단의 continuous variable을 비교)   
+  
 
-여기서 Sex, Pclass, Age, SibSp, avg_prob 변수의 중요도를 확인하였음.
+여기서 Sex, Pclass, Age, Title, SibSp, avg_prob 변수의 중요도를 확인하였음.
 
-   * [자유도](https://ko.wikipedia.org/wiki/%EC%9E%90%EC%9C%A0%EB%8F%84_(%ED%86%B5%EA%B3%84%ED%95%99))
-    * 독립적인 자료의 수 -> Feature의 - 1
+   * [자유도(degree of freedom)](https://ko.wikipedia.org/wiki/%EC%9E%90%EC%9C%A0%EB%8F%84_(%ED%86%B5%EA%B3%84%ED%95%99))
+    * 독립적인 자료의 수
    * [p-value](https://ko.wikipedia.org/wiki/P-value)
-    * 유의확률을 확인하기 위한 
-    * p-value < 0.05 인 것으로 유의수준 5% 에서 통계적으로 효과가 있다고 봐야합
-      (영향이 없다는 귀무가설을 기각하고, 영향이 있다(즉 독립이 아니다)는 대립가설 채택)
-   * [잔차](https://ko.wikipedia.org/wiki/%EC%9E%94%EC%B0%A8)
+    * 유의확률을 확인하기 위한 계산값  
+    * p-value < 0.05 이며 유의수준 5% 에서 통계적으로 효과가 있다고 봐야합
+      (영향이 없다는 귀무가설(null hypothesis)을 기각하고, 영향이 있다(즉 독립이 아니다)는 대립가설(alternative hypothesis) 채택)
+   * [잔차(residual)](https://ko.wikipedia.org/wiki/%EC%9E%94%EC%B0%A8)
     * 모형에 의하여 추정된 종속변수의 값과 실제 관찰된 종속변수 값과의 차이 -> 모형에서의 오차
    * [AIC 통계량](https://en.wikipedia.org/wiki/Akaike_information_criterion)
     * 최적 모형을 결정하는 경우 모형의 설명능력과 모형의 절약성을 고려, 두 판단기준을 함께 고려한 선택규준.
     * AIC = -2 log L(log-[likelihood](http://dermabae.tistory.com/188)) +2n
 
+Deviance (편차), Resid. Df (Residual degrees of freedom, 잔차 자유도), Resid. Dev(Residual Deviance, 잔차 편차)
+
+
+---
+`AIC(fit)`   
+[1] 263.8177   
+`BIC(fit)`   
+[1] 271.6332   
+`logLik(fit)`   
+'log Lik.' -128.9088 (df=3)   
 
 ```{r}
 Titanic.logit.2 <- glm(Survived ~ Sex + Pclass + Age + avg_prob, data = train.batch, family=binomial("logit"))
 anova(Titanic.logit.2, test="Chisq")
 
 ```
-  
-  
-  Time to shift the model fitting to a higher gear. Henceforth, I'm going to use the train function in Kuhn's caret package to fit binary logistic regression models, as well as models built using other methods.
-
-Modeling taken to an extreme on a training data set can leave you with a model which very accurately maps the training data, but does not generalize well to new samples. This phenomenon, commonly referred to as overfitting, can be addressed by resampling the training samples in a way which approximates the fitted model's performance on future data. I'm going to use a form of resampling known as 10-fold cross-validation (CV), repeated 3 times.
-
-Later, I plan to compare the fitted logit model to other model types using the receiver operating characteristic (ROC) curve. The twoClassSummary function in caret can calculate the figures I'll need for that if I give it class probabilities predicted by the logistic regression model.
-
-All of these things I want -- 3x 10-fold CV, estimation of class probabilities, metrics from twoClassSummary -- can be passed through the trainControl function
-    
-
     
 ![alt text](./image/k_fold_crossvalidation.PNG)
-
    * 교차 검증 후 테스트 
     * 데이터를 훈련 데이터와 테스트 데이터로 분리함 
     * 훈련 데이터에 대해 K겹 교차 검증(보통 10겹) 을 수행하여 어떤 모델링 기법이 가장 우수한지를 결정함 
@@ -679,7 +666,11 @@ All of these things I want -- 3x 10-fold CV, estimation of class probabilities, 
         * ![alt text](./image/training_curve.png)
     * [과적합(Overfiting)](https://en.wikipedia.org/wiki/Overfitting)
       * 많은 데이터를 Train 하게되면 unseen 데이터에 대해 낮은 예측력이 생길 수 있다.  
-        * ![alt text](./imgae/overfilt.PNG)
+        * ![alt text](./imgae/overfilt.PNG)T
+
+---
+
+`trainControl()` 함수를 통하여 Cross-Validation 설정   
 
 ```{r}
 cv.ctrl <- trainControl(method = "repeatedcv", repeats = 3,
@@ -687,7 +678,8 @@ cv.ctrl <- trainControl(method = "repeatedcv", repeats = 3,
                         classProbs = TRUE)
 ```
 
-Below is the train function call using the same formula (sans Fare) that we recently passed through glm function. I use the metric argument to tell train to optimize the model by maximizing the area under the ROC curve (AUC). summary(), another extractor function, is called to generate regression coefficients with standard errors and a z-test, plus the residual deviance metric we were watching earlier.
+`glm()` 함수를 이용하여 로지스틱 회귀를 진행, 최적화를 하기 위한  Metric으로 ROC curve (AUC) 를 사용. `summary()` 함수로 회귀계수(regression coefficients), 표준오차(standard error), z-test, 잔차 편차(residual deviance)를 확인한다. 
+
 
 ```{r}
 # install.packages("pROC")
@@ -699,7 +691,7 @@ set.seed(35)
 glm.tune.1 <- train(Survived ~ Sex + Pclass + Age + avg_prob
                     ,data = train.batch
                     ,method = "glm"
-                    ,metric = "ROC"  ## ROC 구체적으로는 AUC 가 최대가 되도록 최적화 하겠다는 의미임 
+                    ,metric = "ROC"  ## ROC 구체적으로는 AUC 가 최대가 되도록 최적화 하겠다는 의미임
                     ,trControl = cv.ctrl)
 glm.tune.1
 summary(glm.tune.1)
@@ -707,12 +699,7 @@ summary(glm.tune.1)
 
 > 기존 코드보다는 결과가 좋아짐 
 
-This is as good a time as any to introduce the concept of class compression. Think of it as collapsing particular levels on a categorical variable. One of the earlier bar graphs showed about 70 percent of the Titanic's passengers boarded the ship at Southampton. I'm going to use Embarked and the I() function, which inhibits interpretation & conversion of R objects, to create a new 2-level factor within the model formula. This factor is valued TRUE if a passenger's port of origin was Southampton ("S"), or FALSE otherwise.
-
-70%의 탑승객이 Southampton에서 탑승함. Embarked를 I() 함수를 이용하여 2차원으로 축소하여 처리  
-
-Embarked의 기존 3레벨을 2레벨로 .. (차원축소??)
-
+70%의 탑승객이 Southampton에서 탑승함. Embarked를 I() 함수를 이용하여 2차원으로 축소하여 처리   
 
 ```{r}
 set.seed(35)
@@ -730,37 +717,38 @@ Title에서 중요한 영향을 줄 수 있는 잠재력이 있어 보임
 
 ```{r}
 set.seed(35)
-glm.tune.3 <- train(Survived ~ Sex + Pclass + Age + avg_prob + I(Embarked=="S")
+glm.tune.3 <- train(Survived ~ Sex + Pclass + Age + avg_prob + Title + I(Embarked=="S")
                     , data = train.batch
                     , method = "glm"
-                    ,metric = "ROC"
+                    , metric = "ROC"
                     , trControl = cv.ctrl)
 summary(glm.tune.3)
 ```
 
 Nice! That gave us our first material decline in the residual deviance. Since the Title feature seems to give us everything that Age did (and more), I'm going to drop Age from the formula. I will also collapse the titles “Miss” and “Mrs” and leave a duo of Title-related factors which should represent the “women and children first” theme well.
 
+앞서 우리는 '영자와 아이 우선' 가설을 생성함, Title로 가설에 중요한 변수를 처리함 
 
 ```{r}
-# set.seed(35)
-# glm.tune.4 <- train(Fate ~ Class + I(Title=="Mr") + I(Title=="Noble") + Age + Family + I(Embarked=="S")
-#                     ,data = train.batch
-#                     ,method = "glm"
-#                     ,metric = "ROC"
-#                     , trControl = cv.ctrl)
-# summary(glm.tune.4)
+#set.seed(35)
+#glm.tune.4 <- train(Fate ~ Class + I(Title=="Mr") + I(Title=="Noble") + Age + Family + #I(Embarked=="S")
+#                    ,data = train.batch
+#                    ,method = "glm"
+#                    ,metric = "ROC"
+#                    , trControl = cv.ctrl)
+#summary(glm.tune.4)
 ```
 
 
 Remember that there were a lot of male passengers in third class. Given the “women and children first” policy already mentioned plus reports that the Titanic's internal layout was confusing (I recall reading that one crew member claimed it took him two weeks to become comfortable with finding his way around the ship), to say that “grown men in the lower decks had it tough” is such a gross understatement that I hesitated to put it in type. A feature reflecting those third-class men might make a further dent in that residual deviance. Indeed, it does...
 
-'여자와 아이딜 우선'의 가설을 검증하기 위하여 I()함수를 이용하여 몇 가지 피쳐를 추가
+'여자와 아이들 우선'의 가설을 검증하기 위하여 I()함수를 이용하여 몇 가지 피쳐를 추가
 
 변수의 특정 조건 연산을 통해 feature를 추가 ..   
 
 ```{r}
 set.seed(35)
-glm.tune.5 <- train(Fate ~ Class + I(Title=="Mr") + I(Title=="Noble") + avg_child_prob + Age + Family + I(Embarked=="S") + I(Title=="Mr"&Class=="Third")
+glm.tune.5 <- train(Fate ~ Class + I(Title=="Mr") + I(Title=="Noble") + avg_prob + Age + Family + I(Embarked=="S") + I(Title=="Mr"&Class=="Third")
                     , data = train.batch
                     , method = "glm"
                     , metric = "ROC"
@@ -900,7 +888,7 @@ plot(rf.tune)
 
 ## 최적값을 찾았으니, mtry = 2
 rf.grid <- data.frame(.mtry = c(2))
-(rf.tune <- train(Survived ~ Sex + Pclass + Age + avg_prob, 
+(rf.tune <- train(Survived ~ Sex + Pclass + I(Title=="Mr") + I(Title=="Noble") + avg_prob + Age + Family + I(Embarked=="S") + I(Title=="Mr"&Class=="Third"), 
                  data = train.batch,
                  method = "rf",
                  metric = "ROC",
@@ -908,7 +896,7 @@ rf.grid <- data.frame(.mtry = c(2))
                  trControl = cv.ctrl)
  )
 
-rf.tune2 <- randomForest(Survived ~ Sex + Pclass + Age + avg_prob, data = train.batch,mtry = 2)
+#rf.tune2 <- randomForest(Survived ~ Sex + Pclass + Age + avg_prob, data = train.batch,mtry = 2)
 
 ```
 
@@ -1021,7 +1009,7 @@ suppressPackageStartupMessages({
 })
 
 ## Logistic regression model
-glm.pred <- predict(glm.tune.1, test.batch)
+glm.pred <- predict(glm.tune.5, test.batch)
 confusionMatrix(glm.pred, test.batch$Survived)   ### all arguments must have the same length 에러가 나고 있음 
 
 ## Boosted model
@@ -1050,7 +1038,7 @@ suppressPackageStartupMessages({
 })
 
 # Logistic regression model (BLACK curve)
-glm.probs <- predict(glm.tune.1, test.batch, type = "prob")  ## 5 -> 1 로 변경함 
+glm.probs <- predict(glm.tune.5, test.batch, type = "prob")  ## 5
 glm.ROC <- roc(response = test.batch$Survived,
                 predictor = glm.probs$Survived,
                 levels = levels(test.batch$Survived))
@@ -1115,3 +1103,49 @@ The next graph (my last, scout's honor) compares the four models on the basis of
 
 
 Let me reiterate the point I made in the disclaimer, way up at the top of this tl;dr page: This journey, paved with text and graphs, was never intended to reveal a path to discovery of the best model for predicting the fate of the passengers referenced in the Titanic data set. I sought only to demonstrate use of a subset of the tools ??? methods and software (R in this case) ??? a data scientist can employ in pursuit of a binary classification model.
+
+### Cast Your Votes
+
+```{r}
+# df.train <- featureEngrg(df.train)
+# train.keeps <- c("Fate", "Sex", "Boat.dibs", "Age", "Title", "Class", "Deck", "Side", "Fare", "Fare.pp", "Embarked", "Family")
+# df.train.munged <- df.train[train.keeps] ##에러 발생  #########################################
+```
+
+```{r}
+# # get titles
+# df.infer$Title <- getTitle(df.infer)
+# 
+# # impute missing Age values
+# df.infer$Title <- changeTitles(df.infer, c("Dona", "Ms"), "Mrs")
+# titles.na.test <- c("Master", "Mrs", "Miss", "Mr")
+# df.infer$Age <- imputeMedian(df.infer$Age, df.infer$Title, titles.na.test)
+# 
+# # consolidate titles
+# df.infer$Title <- changeTitles(df.infer, c("Col", "Dr", "Rev"), "Noble")
+# df.infer$Title <- changeTitles(df.infer, c("Mlle", "Mme"), "Miss")
+# df.infer$Title <- as.factor(df.infer$Title)
+# 
+# # impute missing fares
+# df.infer$Fare[ which( df.infer$Fare == 0)] <- NA
+# df.infer$Fare <- imputeMedian(df.infer$Fare, df.infer$Pclass, 
+#                                 as.numeric(levels(df.infer$Pclass)))
+# # add the other features
+# df.infer <- featureEngrg(df.infer)
+# 
+# # data prepped for casting predictions
+# test.keeps <- train.keeps[-1] ## 에러 발생  ##################################
+# pred.these <- df.infer[test.keeps]
+# 
+# # use the logistic regression model to generate predictions
+# Survived <- predict(glm.tune.1, newdata = pred.these)
+# 
+# # reformat predictions to 0 or 1 and link to PassengerId in a data frame
+# Survived <- revalue(Survived, c("Survived" = 1, "Perished" = 0))
+# predictions <- as.data.frame(Survived)
+# predictions$PassengerId <- df.infer$PassengerId
+# 
+# # write predictions to csv file for submission to Kaggle
+# write.csv(predictions[,c("PassengerId", "Survived")], 
+#           file="Titanic_predictions_glm1.csv", row.names=FALSE, quote=FALSE)
+```
