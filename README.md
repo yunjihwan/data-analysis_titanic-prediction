@@ -224,8 +224,20 @@ head(rpart_result)
 ## 정확도 평가 
 sum(rpart_result$predicted == rpart_result$actual) / NROW(rpart_result$actual)  # 10겹 교차는 뒤쪽에서 진행, 그때 정확도도 평균, 표준편차를 표시, 밀도그림도 .. 뒤쪽에서 보여줘야 겠고
 
+
+# @@@ 제출용 코드
+# names(all2)
+# all2$Survived <- predict(m, newdata=all2, type="class")
+# all2$Survived <- revalue(all2$Survived, c("Survived" = 1, "dead" = 0))
+# head(all2)
+# submission_01 <- all2[,c("PassengerId", "Survived")]
+# setwd("C:\\Users\\user\\Documents\\eda\\submission")
+# getwd()
+# write.csv(submission_01, file = "test_decistion_tree_01.csv", row.names=FALSE)
+
 ```
 
+![alt text](./imgae/test_rf.tune_01.PNG)
 
 ### 조건부의사결정나무 
 
@@ -527,31 +539,51 @@ all <- featureEngrg(all)
           })
 
 
-  ## ctree 모델
+  ## 다시, 훈련 데이터와 테스트 데이터를 구분함 
   train.batch <- subset(all, type == "T")
   # str(f$train)
   test.batch <- subset(all, type == "V")
+
+  ## ctree 모델
   # 새로 구성한 변수들을 독립 변수로 추가하여 ctree() 모델 생성
   ## 당연히 모델은 훈련데이터로 만들고 
-  m <- ctree(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked
+  m <- ctree(Fate ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked + Title
         + maybe_parent + maybe_child + avg_prob + avg_parent_prob + avg_child_prob,data=train.batch)
   print(">>>> 새로운 특징을 적용한 ctree 모델 생성 결과")
   print(m)
-  print(">>>> 새로 추가된 특징(maybe_parent + maybe_child + avg_prob + avg_parent_prob + avg_child_prob)들이 ctree의 상위 노드에 사용되는지 확인해보자)")
+  print(">>>> 새로 추가된 특징(avg_prob, Title)들이 ctree의 상위 노드에 사용되는지 확인해보자)")
   # 생성된 ctree 모델에 검증 데이터 적용
-  test.batch$familyid_predicted <- predict(m, newdata=test.batch)
-  head(test.batch)
+  test.batch$new_predicted <- predict(m, newdata=test.batch)
+#   head(test.batch)
   # 검증 데이터에 대해 생존 여부 예측 결과(predicted) 및 실제 결과(actual)를 합쳐 list로 반환
 
 
 ##성능평가 결과는 다음과 같음
-(family_accuracy <- sum(test.batch$familyid_predicted == test.batch$Survived) / NROW(test.batch$Survived) )
+(family_accuracy <- sum(test.batch$new_predicted == test.batch$Fate) / NROW(test.batch$Fate) )
+
 
 ```
 
 추가 feature 로 정확도가 상승했는지 확인을 하고,,, (ctree 모델을 통해)
 
----
+
+```{r}
+
+# train.keeps <- c("Fate", "Sex", "Boat.dibs", "Age", "Title", 
+#                 "Class", "Deck", "Side", "Fare", "Fare.pp", 
+#                   "Embarked", "Family","Survived")  ## Survived 을 추가함 
+# df.train.munged <- df.train[train.keeps]
+
+names(train.batch)
+train.keeps <- c("Fate", "Sex", "Boat.dibs", "Age", "Title", "SibSp","Parch",
+                "Class", "Deck", "Side", "Fare", "Fare.pp", 
+                  "Embarked", "Family","Survived","avg_prob","family_id"
+                ,"maybe_parent", "maybe_child", "avg_parent_prob", "avg_child_prob" )  ## Survived 을 추가함 
+train_batch_munged <- train.batch[train.keeps]
+names(train_batch_munged)
+head(train_batch_munged)
+
+```
 
 # Fitting a Model
 
@@ -561,12 +593,12 @@ all <- featureEngrg(all)
 
 #### 로지스틱 회귀분석을 통한 변수 최적화
    * [선형회귀](https://ko.wikipedia.org/wiki/%EC%84%A0%ED%98%95_%ED%9A%8C%EA%B7%80)
-    * ![alt text](https://upload.wikimedia.org/wikipedia/commons/b/be/Normdist_regression.png)
+    * ![alt text](./image/Normdist_regression.png)
     * [종속 변수](http://terms.naver.com/entry.nhn?docId=76283&cid=42155&categoryId=42155) y와 한 개 이상의 [독립 변수](http://terms.naver.com/entry.nhn?docId=76283&cid=42155&categoryId=42155) (또는 설명 변수) X와의 선형 상관 관계를 모델링하는 회귀분석 기법
     * 회귀식: y'=a+bx   y'=종속 변수(예측 대상) x=독립 변수(y'에 영향을 미치는 변수) a,b는 회계 계수
     * 한 개의 설명 변수에 기반한 경우에는 단순 선형 회귀, 둘 이상의 설명 변수에 기반한 경우에는 다중 선형 회귀라고 한다.
    * [로지스틱회귀](https://ko.wikipedia.org/wiki/%EB%A1%9C%EC%A7%80%EC%8A%A4%ED%8B%B1_%ED%9A%8C%EA%B7%80)
-    * ![alt text](http://ww2.coastal.edu/kingw/statistics/R-tutorials/images/menarche2.png)
+    * ![alt text](./image/menarche2.png)
     * 선형 회귀 분석을 기반으로 종속 변수가 범주형 데이터를 대상으로 함   
  * 장점
       * 모든 표본점이 고려된다.
@@ -588,11 +620,12 @@ all <- featureEngrg(all)
     
     
 ```{r}
-
-(Titanic.logit.1 <- glm(Survived ~ Sex + Pclass + Age + Title + avg_prob + SibSp + Parch + avg_parent_prob + Fare + Embarked + maybe_parent + maybe_child + avg_child_prob,data=train.batch, family=binomial("logit")))
+(Titanic.logit.1 <- glm(Fate ~ Class + Sex + Age + SibSp + Parch + Title + Fare 
+                        + Embarked + maybe_parent + maybe_child + avg_prob 
+                        + avg_parent_prob + avg_child_prob,data=train_batch_munged, family=binomial("logit")))
 
 # 이에 대한 p-value 는 아래와 같이 구함 
-### The deviance was reduced by 332.2(950.9-618.7) points on 713-705=8 degrees of freedom (DF), a significant reduction..
+### The deviance was reduced by 332.2(765.4-464.5) points on 568-554=8 degrees of freedom (DF), a significant reduction..
 1 - pchisq((765.4-464.5), df=(568-554))  ## 0 유의미한 차이가 있고, 모델이 잘 수행한다고 봐야 ??  
                        
 ```
@@ -613,11 +646,7 @@ all <- featureEngrg(all)
 anova(Titanic.logit.1, test="Chisq")
 ```
 
-추가로 다른 feature 조합 들간의 비교를 위해 `anova()` ([분산분석](https://ko.wikipedia.org/wiki/%EB%B6%84%EC%82%B0%EB%B6%84%EC%84%9D)를 사용    
-  * 평균과 분산을 기초로 여러 집단을 비교하고, 이들 집단의 평균값에 차이가 있는지 가설검정을 하는 통계분석 기법(여러 집단의 continuous variable을 비교)   
-  
-
-여기서 Sex, Pclass, Age, Title, SibSp, avg_prob 변수의 중요도를 확인하였음.
+여기서 Sex, Pclass, Age, Title, SibSp, avg_prob 변수의 중요도를 확인할 수 있음 
 
    * [자유도(degree of freedom)](https://ko.wikipedia.org/wiki/%EC%9E%90%EC%9C%A0%EB%8F%84_(%ED%86%B5%EA%B3%84%ED%95%99))
     * 독립적인 자료의 수
@@ -643,9 +672,9 @@ Deviance (편차), Resid. Df (Residual degrees of freedom, 잔차 자유도), Re
 'log Lik.' -128.9088 (df=3)   
 
 ```{r}
-Titanic.logit.2 <- glm(Survived ~ Sex + Pclass + Age + avg_prob, data = train.batch, family=binomial("logit"))
+Titanic.logit.2 <- glm(Fate ~ Class + Sex + Age + Title + avg_prob 
+                       , data = train_batch_munged, family=binomial("logit"))
 anova(Titanic.logit.2, test="Chisq")
-
 ```
     
 ![alt text](./image/k_fold_crossvalidation.PNG)
@@ -666,7 +695,7 @@ anova(Titanic.logit.2, test="Chisq")
         * ![alt text](./image/training_curve.png)
     * [과적합(Overfiting)](https://en.wikipedia.org/wiki/Overfitting)
       * 많은 데이터를 Train 하게되면 unseen 데이터에 대해 낮은 예측력이 생길 수 있다.  
-        * ![alt text](./imgae/overfilt.PNG)T
+        * ![alt text](./imgae/overfilt.PNG)
 
 ---
 
@@ -688,10 +717,10 @@ suppressPackageStartupMessages({
   library(pROC)
 })
 set.seed(35)
-glm.tune.1 <- train(Survived ~ Sex + Pclass + Age + avg_prob
-                    ,data = train.batch
+glm.tune.1 <- train(Fate ~ Class + Sex + Age + Title + avg_prob
+                    ,data = train_batch_munged
                     ,method = "glm"
-                    ,metric = "ROC"  ## ROC 구체적으로는 AUC 가 최대가 되도록 최적화 하겠다는 의미임
+                    ,metric = "ROC"  ## ROC 구체적으로는 AUC 가 최대가 되도록 최적화 하겠다는 의미임 
                     ,trControl = cv.ctrl)
 glm.tune.1
 summary(glm.tune.1)
@@ -699,12 +728,15 @@ summary(glm.tune.1)
 
 > 기존 코드보다는 결과가 좋아짐 
 
+![alt text](./imgae/test_glm_tune_01.PNG)
+
+
 70%의 탑승객이 Southampton에서 탑승함. Embarked를 I() 함수를 이용하여 2차원으로 축소하여 처리   
 
 ```{r}
 set.seed(35)
-glm.tune.2 <- train(Survived ~ Sex + Pclass + Age + avg_prob + I(Embarked=="S")
-                      ,data = train.batch
+glm.tune.2 <- train(Fate ~ Class + Sex + Age + Title + avg_prob + I(Embarked=="S")
+                      ,data = train_batch_munged
                       , method = "glm"
                       ,metric = "ROC"
                       , trControl = cv.ctrl)
@@ -717,10 +749,10 @@ Title에서 중요한 영향을 줄 수 있는 잠재력이 있어 보임
 
 ```{r}
 set.seed(35)
-glm.tune.3 <- train(Survived ~ Sex + Pclass + Age + avg_prob + Title + I(Embarked=="S")
-                    , data = train.batch
+glm.tune.3 <- train(Fate ~ Class + Sex + Age + Title + avg_prob + I(Embarked=="S")
+                    , data = train_batch_munged
                     , method = "glm"
-                    , metric = "ROC"
+                    ,metric = "ROC"
                     , trControl = cv.ctrl)
 summary(glm.tune.3)
 ```
@@ -730,13 +762,15 @@ Nice! That gave us our first material decline in the residual deviance. Since th
 앞서 우리는 '영자와 아이 우선' 가설을 생성함, Title로 가설에 중요한 변수를 처리함 
 
 ```{r}
-#set.seed(35)
-#glm.tune.4 <- train(Fate ~ Class + I(Title=="Mr") + I(Title=="Noble") + Age + Family + #I(Embarked=="S")
-#                    ,data = train.batch
-#                    ,method = "glm"
-#                    ,metric = "ROC"
-#                    , trControl = cv.ctrl)
-#summary(glm.tune.4)
+ set.seed(35)
+ glm.tune.4 <- train(Fate ~ Class + Sex + avg_prob 
+                     + I(Title=="Mr") + I(Title=="Noble") + Age + Family 
+                     + I(Embarked=="S")
+                     ,data = train_batch_munged
+                     ,method = "glm"
+                     ,metric = "ROC"
+                     , trControl = cv.ctrl)
+summary(glm.tune.4)
 ```
 
 
@@ -747,13 +781,51 @@ Remember that there were a lot of male passengers in third class. Given the “w
 변수의 특정 조건 연산을 통해 feature를 추가 ..   
 
 ```{r}
-set.seed(35)
-glm.tune.5 <- train(Fate ~ Class + I(Title=="Mr") + I(Title=="Noble") + avg_prob + Age + Family + I(Embarked=="S") + I(Title=="Mr"&Class=="Third")
-                    , data = train.batch
-                    , method = "glm"
-                    , metric = "ROC"
-                    , trControl = cv.ctrl)
+ set.seed(35)
+ glm.tune.5 <- train(Fate ~ Class + Sex + avg_prob  
+                     + I(Title=="Mr") + I(Title=="Noble") + Age + Family 
+                     + I(Embarked=="S") + I(Title=="Mr"&Class=="Third")
+                     , data = train_batch_munged
+                     , method = "glm"
+                     , metric = "ROC"
+#                      , metric = "Accuracy"
+                     , trControl = cv.ctrl)
 summary(glm.tune.5)
+
+test.batch$new_predicted <- ''
+test.batch$new_predicted <- predict(glm.tune.5, newdata=test.batch)
+(glm.tune.5_accuracy <- sum(test.batch$new_predicted == test.batch$Fate) / NROW(test.batch$Fate) )
+
+
+
+#' @@@ 제출용 코드
+# all2 <- test.raw
+# names(all2)
+# head(all2)
+# str(all2)
+# dim(all2)
+
+# ## 실제 Embarked 필드에서 null 값이 있는 행에 대해서 확인을  
+# all2[!complete.cases(all2$Age),]
+# all2[!complete.cases(all2$Title),]
+# predict(glm.tune.5, newdata=all2, type="raw")
+# 
+# require(Amelia)
+# missmap(all2, main="Titanic Training Data - Missings Map", 
+#         col=c("yellow", "black"), legend=FALSE)
+
+
+# all2$PassengerId
+# all2$Survived <- ''
+# all2$Survived <- predict(glm.tune.1, newdata=all2, type="raw")
+# all2$Survived <- revalue(all2$Survived, c("Survived" = 1, "dead" = 0))
+# head(all2)
+# submission_01 <- all2[,c("PassengerId", "Survived")]
+# setwd("C:\\Users\\jihwan\\Documents\\eda\\eda\\submission")
+# getwd()
+# write.csv(submission_01, file = "test_glm_tune_01.csv", row.names=FALSE)
+
+
 ```
 
 가장 낮은 AIC 도출 .. 
@@ -781,12 +853,12 @@ Logistic regression is certainly not the only binary classification model availa
 ## SVM (support vector machine)
 
   * 서포트 벡터머신은 서로 다른 분류에 속한 데이터 간에 간격이 최대가 되는 선(또는 평면)을 찾아 이를 기준으로 데이터를 분류하는 모델임  
-    ![SVM개념설명](https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Svm_max_sep_hyperplane_with_margin.png/556px-Svm_max_sep_hyperplane_with_margin.png)  
+    ![SVM개념설명](./image/556px-Svm_max_sep_hyperplane_with_margin.png)  
     * 서포트 벡터 머신은 각 분류에 속하는 데이터로부터 같은 간격으로, 그리고 최대로 멀리 떨어진 선 또는 평면을 찾음 
     * 이러한 선 또는 평면을 최대 여백 초평면(Maximum Margin Hyperplane) 이라고 하고, 이 평면이 분류를 나누는 기준이 됨 
     * 하지만, 모든 데이터를 항상 초평면으로 나눌 수 있는 것은 아님
       * 아래 왼쪽의 경우, 곡선 기준을 통해 평면을 찾을 수 없기 때문에 주어진 데이터를 적절한 고차원으로 옮긴 뒤 변환된 차원에서 서포트 벡터 머신을 사용해 초평면을 찾는 방식을 사용하는데 이를 커널 트릭이라고 함 
-      ![SVM개념설명](https://upload.wikimedia.org/wikipedia/commons/1/1b/Kernel_Machine.png) 
+      ![SVM개념설명](./image/Kernel_Machine.png) 
       * 커널 트릭에서는 실제로 데이터를 고차원으로 변환하는 대신 고차원에서 벡터 간 내적 계산을 했을 때와 같은 값을 반환하는 함수들을 사용한다. 
         * 이 함수들을 사용하면 마치 데이터를 고차원으로 옮긴 듯한 효과를 일으키면서도 데이터를 고차원으로 옮기는데 따른 계산 비용 증가는 피할 수 있고 .. 이러한 함수들을 커널함수라고 부른다. 
         * 대표적인 커널 함수로 다항 커널(Polynomial Kernel), 가우시안 커널(Gaussian Kernel),  레이디얼 베이스 함수(Radial Basis Function Kernel) 이 있음
@@ -812,8 +884,10 @@ suppressPackageStartupMessages({
 })
 
 set.seed(35)
-svm.tune <- train(Survived ~ Sex + Pclass + Age + avg_prob, 
-                  data = train.batch,
+svm.tune <- train(Fate ~ Class + Sex + avg_prob  
+                     + I(Title=="Mr") + I(Title=="Noble") + Age + Family 
+                     + I(Embarked=="S") + I(Title=="Mr"&Class=="Third"),
+                  data = train_batch_munged,
                   method = "svmRadial",
                   tuneLength = 9,
                   preProcess = c("center", "scale"),
@@ -822,11 +896,30 @@ svm.tune <- train(Survived ~ Sex + Pclass + Age + avg_prob,
 
 svm.tune
 plot(svm.tune)
+
+
+## 정확도 
+test.batch$new_predicted <- ''
+test.batch$new_predicted <- predict(svm.tune, newdata=test.batch)
+(svm.tune_accuracy <- sum(test.batch$new_predicted == test.batch$Fate) / NROW(test.batch$Fate) )
+
+# # @@@ 제출 
+# # all2$PassengerId
+# all2$Survived <- ''
+# all2$Survived <- predict(svm.tune, newdata=all2, type="raw")
+# all2$Survived <- revalue(all2$Survived, c("Survived" = 1, "dead" = 0))
+# head(all2)
+# submission_01 <- all2[,c("PassengerId", "Survived")]
+# setwd("C:\\Users\\user\\Documents\\eda\\submission")
+# getwd()
+# write.csv(submission_01, file = "test_svm_tune_01.csv", row.names=FALSE)
+
+
 ```
 
 cost 파라미터에 대한 ROC 값을 보여준다. 여기서는 c=2 에서 ROC 값이 가장 크게나옴 
 
-
+![alt text](./imgae/test_svm_tune_01.PNG)
 
 ## 랜덤포레스트
 
@@ -853,15 +946,25 @@ cost 파라미터에 대한 ROC 값을 보여준다. 여기서는 c=2 에서 ROC
 suppressPackageStartupMessages({
   library(randomForest)
 })
-rf.tune_temp <- randomForest(Survived ~ Sex + Pclass + Age + avg_prob + Embarked
-                             , data = train.batch, importance=TRUE)
+
+names(train_batch_munged)
+
+### title 표현식에서 에러가 남 
+# rf.tune_temp <- randomForest(Fate ~ Class + Sex + avg_prob  
+#                      + I(Title=="Mr") + I(Title=="Noble") + Age + Family 
+#                      + I(Embarked=="S") + I(Title=="Mr"&Class=="Third")
+#                      , data = train_batch_munged, importance=TRUE)
+
+rf.tune_temp <- randomForest(Fate ~ Class + Sex + avg_prob  
+                     + Age + Family + Title
+                     , data = train_batch_munged, importance=TRUE)
+
 importance(rf.tune_temp)
 varImpPlot(rf.tune_temp, main="varImpPlot of titanic")
 
 ```
 
 정확도 측면(MeanDecreaseAccuracy) 과 노드 불순도 개선(MeanDecreaseGini) 측면에서 변수 중요도를 확인할 수 있음  
-
 
 또한, 여기서 mtry 파라미터 (노드를 나눌 기준을 정할 때 고려할 변수의 수) 최적화에 대해서 살펴보겠음.(기본값이 자동으로 잘 부여된다고는 함)
 실제 feature 수가 많지 않아서 mtry 값은 크지 않은 값으로 사용하면 되겠지만,   
@@ -871,37 +974,38 @@ varImpPlot(rf.tune_temp, main="varImpPlot of titanic")
 ## 랜덤포레스트 파라미터 최적화
 rf.grid <- data.frame(.mtry = c(2, 3)) ## mtry : 노드를 나눌 기준을 정할 때 고려할 변수의 수 
 set.seed(35)
-rf.tune <- train(Survived ~ Sex + Pclass + Age + avg_prob, 
-                 data = train.batch,
+rf.tune <- train(Fate ~ Class + Sex + avg_prob  
+                     + I(Title=="Mr") + I(Title=="Noble") + Age + Family 
+                     + I(Embarked=="S") + I(Title=="Mr"&Class=="Third") ,
+                 data = train_batch_munged,
                  method = "rf",
                  metric = "ROC",
                  tuneGrid = rf.grid,
                  trControl = cv.ctrl)
+
+## 정확도 
+test.batch$new_predicted <- ''
+test.batch$new_predicted <- predict(rf.tune, newdata=test.batch)
+(rf.tune_accuracy <- sum(test.batch$new_predicted == test.batch$Fate) / NROW(test.batch$Fate) )
+
+# # # @@@ 제출 
+# # all2$PassengerId
+# all2$Survived <- ''
+# all2$Survived <- predict(rf.tune, newdata=all2, type="raw")
+# all2$Survived <- revalue(all2$Survived, c("Survived" = 1, "dead" = 0))
+# head(all2)
+# submission_01 <- all2[,c("PassengerId", "Survived")]
+# setwd("C:\\Users\\user\\Documents\\eda\\submission")
+# getwd()
+# write.csv(submission_01, file = "test_rf.tune_01.csv", row.names=FALSE)
+
 ```
 
 역시 mtry=2 에서보다 좋은 결과가 나왔음. 
-아래와 같이 실제는 파라미터를 튜닝한 모델을 사용할 수 있겠음 
+아래와 같이 실제는 파라미터를 튜닝한 모델을 지정해야 하나? 
+이미 해당 모델에서는 최적의 파라미터 값을 알고 있기에 별도 지정하지 않아도 됨 
 
-```{r}
-rf.tune
-plot(rf.tune)
-
-## 최적값을 찾았으니, mtry = 2
-rf.grid <- data.frame(.mtry = c(2))
-(rf.tune <- train(Survived ~ Sex + Pclass + I(Title=="Mr") + I(Title=="Noble") + avg_prob + Age + Family + I(Embarked=="S") + I(Title=="Mr"&Class=="Third"), 
-                 data = train.batch,
-                 method = "rf",
-                 metric = "ROC",
-                 tuneGrid = rf.grid,
-                 trControl = cv.ctrl)
- )
-
-#rf.tune2 <- randomForest(Survived ~ Sex + Pclass + Age + avg_prob, data = train.batch,mtry = 2)
-
-```
-
-
-
+![alt text](./imgae/test_rf.tune_01.PNG)
 
 ## adaboosting 
 
@@ -943,12 +1047,40 @@ suppressPackageStartupMessages({
 registerDoParallel(cores=2)
 
 set.seed(35)
-system.time(ada.tune <- train(Survived ~ Sex + Pclass + Age + avg_prob, data = train.batch,
+
+
+# train_batch_munged[!complete.cases(train_batch_munged$Title),]
+
+# system.time(ada.tune <- train(Fate ~ Class + Sex + avg_prob  
+#                      + I(Title=="Mr") + I(Title=="Noble") + Age + Family 
+#                      + I(Embarked=="S") + I(Title=="Mr"&Class=="Third") ,
+#                       data = train_batch_munged,
+#                   method = "ada",
+#                   metric = "ROC", 
+#                   tuneGrid = ada.grid, 
+#                   trControl = cv.ctrl)
+# ) 
+# Error in { : task 1 failed - "object 'I.Title.....Mr..TRUE' not found"
+# In addition: There were 50 or more warnings (use warnings() to see the first 50)
+
+
+# system.time(ada.tune <- train(Fate ~ Class + Sex + avg_prob + Age + Family + Title ,
+#                       data = train_batch_munged,
+#                   method = "ada",
+#                   metric = "ROC", 
+#                   tuneGrid = ada.grid, 
+#                   trControl = cv.ctrl)
+# ) 
+# Error in { : 
+#   task 1 failed - "객체 'Titlethe.Countess'를 찾을 수 없습니다"
+
+
+system.time(ada.tune <- train(Fate ~ Class + Sex + avg_prob + Age + Family  ,
+                      data = train_batch_munged,
                   method = "ada",
                   metric = "ROC", 
                   tuneGrid = ada.grid, 
-                  trControl = cv.ctrl)
-) 
+                  trControl = cv.ctrl))
 
 # 아래는 리눅스 desktop 환경에서의 기록임
 # 병렬처리를 하지 않는 경우는, 다음과 같은 시간이 걸림 
@@ -967,7 +1099,7 @@ system.time(ada.tune <- train(Survived ~ Sex + Pclass + Age + avg_prob, data = t
 
 ```
 
-The model output shows that, given the train.batch data and 8 combinations of tuning variables tested, the optimal model had an ROC of 0.871. 
+The model output shows that, given the train_batch_munged data and 8 combinations of tuning variables tested, the optimal model had an ROC of 0.871. 
 
   * ROC (Repeated Cross-Validation) 
     * $ROC = \frac{Sensitivity}{Specificity}$
@@ -982,6 +1114,23 @@ The model output shows that, given the train.batch data and 8 combinations of tu
 
 ada.tune
 # plot(ada.tune)  
+
+## 정확도 
+test.batch$new_predicted <- ''
+test.batch$new_predicted <- predict(ada.tune, newdata=test.batch)
+(rf.tune_accuracy <- sum(test.batch$new_predicted == test.batch$Fate) / NROW(test.batch$Fate) )
+
+# # # @@@ 제출 
+# # all2$PassengerId
+# all2$Survived <- ''
+# all2$Survived <- predict(ada.tune, newdata=all2, type="raw")
+# all2$Survived <- revalue(all2$Survived, c("Survived" = 1, "dead" = 0))
+# head(all2)
+# submission_01 <- all2[,c("PassengerId", "Survived")]
+# setwd("C:\\Users\\user\\Documents\\eda\\submission")
+# getwd()
+# write.csv(submission_01, file = "test_ada_tune_01.csv", row.names=FALSE)
+
 
 ```
 
@@ -1009,7 +1158,7 @@ suppressPackageStartupMessages({
 })
 
 ## Logistic regression model
-glm.pred <- predict(glm.tune.5, test.batch)
+glm.pred <- predict(glm.tune.1, test.batch)
 confusionMatrix(glm.pred, test.batch$Survived)   ### all arguments must have the same length 에러가 나고 있음 
 
 ## Boosted model
@@ -1038,7 +1187,7 @@ suppressPackageStartupMessages({
 })
 
 # Logistic regression model (BLACK curve)
-glm.probs <- predict(glm.tune.5, test.batch, type = "prob")  ## 5
+glm.probs <- predict(glm.tune.1, test.batch, type = "prob")  ## 5 -> 1 로 변경함 
 glm.ROC <- roc(response = test.batch$Survived,
                 predictor = glm.probs$Survived,
                 levels = levels(test.batch$Survived))
@@ -1103,49 +1252,3 @@ The next graph (my last, scout's honor) compares the four models on the basis of
 
 
 Let me reiterate the point I made in the disclaimer, way up at the top of this tl;dr page: This journey, paved with text and graphs, was never intended to reveal a path to discovery of the best model for predicting the fate of the passengers referenced in the Titanic data set. I sought only to demonstrate use of a subset of the tools ??? methods and software (R in this case) ??? a data scientist can employ in pursuit of a binary classification model.
-
-### Cast Your Votes
-
-```{r}
-# df.train <- featureEngrg(df.train)
-# train.keeps <- c("Fate", "Sex", "Boat.dibs", "Age", "Title", "Class", "Deck", "Side", "Fare", "Fare.pp", "Embarked", "Family")
-# df.train.munged <- df.train[train.keeps] ##에러 발생  #########################################
-```
-
-```{r}
-# # get titles
-# df.infer$Title <- getTitle(df.infer)
-# 
-# # impute missing Age values
-# df.infer$Title <- changeTitles(df.infer, c("Dona", "Ms"), "Mrs")
-# titles.na.test <- c("Master", "Mrs", "Miss", "Mr")
-# df.infer$Age <- imputeMedian(df.infer$Age, df.infer$Title, titles.na.test)
-# 
-# # consolidate titles
-# df.infer$Title <- changeTitles(df.infer, c("Col", "Dr", "Rev"), "Noble")
-# df.infer$Title <- changeTitles(df.infer, c("Mlle", "Mme"), "Miss")
-# df.infer$Title <- as.factor(df.infer$Title)
-# 
-# # impute missing fares
-# df.infer$Fare[ which( df.infer$Fare == 0)] <- NA
-# df.infer$Fare <- imputeMedian(df.infer$Fare, df.infer$Pclass, 
-#                                 as.numeric(levels(df.infer$Pclass)))
-# # add the other features
-# df.infer <- featureEngrg(df.infer)
-# 
-# # data prepped for casting predictions
-# test.keeps <- train.keeps[-1] ## 에러 발생  ##################################
-# pred.these <- df.infer[test.keeps]
-# 
-# # use the logistic regression model to generate predictions
-# Survived <- predict(glm.tune.1, newdata = pred.these)
-# 
-# # reformat predictions to 0 or 1 and link to PassengerId in a data frame
-# Survived <- revalue(Survived, c("Survived" = 1, "Perished" = 0))
-# predictions <- as.data.frame(Survived)
-# predictions$PassengerId <- df.infer$PassengerId
-# 
-# # write predictions to csv file for submission to Kaggle
-# write.csv(predictions[,c("PassengerId", "Survived")], 
-#           file="Titanic_predictions_glm1.csv", row.names=FALSE, quote=FALSE)
-```
