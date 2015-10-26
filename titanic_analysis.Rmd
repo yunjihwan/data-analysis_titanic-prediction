@@ -237,7 +237,7 @@ sum(rpart_result$predicted == rpart_result$actual) / NROW(rpart_result$actual)  
 
 ```
 
-![alt text](./imgae/test_rf.tune_01.PNG)
+![alt text](./image/test_rf.tune_01.PNG)
 
 ### 조건부의사결정나무 
 
@@ -728,7 +728,7 @@ summary(glm.tune.1)
 
 > 기존 코드보다는 결과가 좋아짐 
 
-![alt text](./imgae/test_glm_tune_01.PNG)
+![alt text](./image/test_glm_tune_01.PNG)
 
 
 70%의 탑승객이 Southampton에서 탑승함. Embarked를 I() 함수를 이용하여 2차원으로 축소하여 처리   
@@ -919,7 +919,7 @@ test.batch$new_predicted <- predict(svm.tune, newdata=test.batch)
 
 cost 파라미터에 대한 ROC 값을 보여준다. 여기서는 c=2 에서 ROC 값이 가장 크게나옴 
 
-![alt text](./imgae/test_svm_tune_01.PNG)
+![alt text](./image/test_svm_tune_01.PNG)
 
 ## 랜덤포레스트
 
@@ -1005,7 +1005,7 @@ test.batch$new_predicted <- predict(rf.tune, newdata=test.batch)
 아래와 같이 실제는 파라미터를 튜닝한 모델을 지정해야 하나? 
 이미 해당 모델에서는 최적의 파라미터 값을 알고 있기에 별도 지정하지 않아도 됨 
 
-![alt text](./imgae/test_rf.tune_01.PNG)
+![alt text](./image/test_rf.tune_01.PNG)
 
 ## adaboosting 
 
