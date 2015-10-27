@@ -1284,7 +1284,7 @@ svm.tune  | 0.78947 | 1427 | '+1365'
 rf.tune  | 0.79426 | 1180 | '+247'
 
 
-![submission](./image/final.png)
+![submission](./image/final.PNG)
 
 [자료 기반 출처]
 - https://github.com/wehrley/wehrley.github.io/blob/master/SOUPTONUTS.md

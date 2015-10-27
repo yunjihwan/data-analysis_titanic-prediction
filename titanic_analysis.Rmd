@@ -1267,7 +1267,7 @@ svm.tune  | 0.78947 | 1427 | '+1365'
 rf.tune  | 0.79426 | 1180 | '+247'
 
 
-![submission](./image/final.png)
+![submission](./image/final.PNG)
 
 
 [자료 출처]
