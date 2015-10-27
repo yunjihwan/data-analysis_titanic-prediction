@@ -712,12 +712,13 @@ glm.tune.1
 summary(glm.tune.1)
 ```
 
-예측률 | 증감 | 순위 | 모델
+
+모델 | 예측률 | 순위 | 증감
 --- | --- | --- | ---
-0.73684 | - | 3162  | glm.tune.1
+glm.tune.1  | 0.73684 | 3162
+
 
 > 기존 코드보다는 결과가 좋아짐 
-
 
 70%의 탑승객이 Southampton에서 탑승함. Embarked를 I() 함수를 이용하여 2차원으로 축소하여 처리   
 
@@ -732,7 +733,7 @@ summary(glm.tune.2)
 ```
 
 
-모델 | 예측률 | 증감 | 순위
+모델 | 예측률 | 순위 | 증감
 --- | --- | --- | ---
 glm.tune.1  | 0.73684 | 3162 | -
 glm.tune.2  | 0.75120 | 3038 | '124'
@@ -753,7 +754,7 @@ summary(glm.tune.3)
 ```
 
 
-모델 | 예측률 | 증감 | 순위
+모델 | 예측률 | 순위 | 증감
 --- | --- | --- | ---
 glm.tune.1  | 0.73684 | 3162 | -
 glm.tune.2  | 0.75120 | 3039 | '+125'
@@ -825,7 +826,7 @@ test.batch$new_predicted <- predict(glm.tune.5, newdata=test.batch)
 ```
 
 
-모델 | 예측률 | 증감 | 순위
+모델 | 예측률 | 순위 | 증감
 --- | --- | --- | ---
 glm.tune.1  | 0.73684 | 3162 | -
 glm.tune.2  | 0.75120 | 3039 | '+125'
@@ -924,7 +925,7 @@ test.batch$new_predicted <- predict(svm.tune, newdata=test.batch)
 
 cost 파라미터에 대한 ROC 값을 보여준다. 여기서는 c=2 에서 ROC 값이 가장 크게나옴 
 
-모델 | 예측률 | 증감 | 순위
+모델 | 예측률 | 순위 | 증감
 --- | --- | --- | ---
 glm.tune.1  | 0.73684 | 3162 | -
 glm.tune.2  | 0.75120 | 3039 | '+125'
@@ -1016,7 +1017,7 @@ test.batch$new_predicted <- predict(rf.tune, newdata=test.batch)
 아래와 같이 실제는 파라미터를 튜닝한 모델을 지정해야 하나? 
 이미 해당 모델에서는 최적의 파라미터 값을 알고 있기에 별도 지정하지 않아도 됨 
 
-모델 | 예측률 | 증감 | 순위
+모델 | 예측률 | 순위 | 증감
 --- | --- | --- | ---
 glm.tune.1  | 0.73684 | 3162 | -
 glm.tune.2  | 0.75120 | 3039 | '+125'
@@ -1273,7 +1274,7 @@ Let me reiterate the point I made in the disclaimer, way up at the top of this t
 
 ## 최종 모델 결
 
-모델 | 예측률 | 증감 | 순위
+모델 | 예측률 | 순위 | 증감
 --- | --- | --- | ---
 glm.tune.1  | 0.73684 | 3162 | -
 glm.tune.2  | 0.75120 | 3039 | '+125'

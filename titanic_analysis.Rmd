@@ -599,11 +599,7 @@ head(train_batch_munged)
       * 독립 변수들 사이의 상호의존도가 높으면 회귀계수의 부호가 바뀌거나 0에 가까운 값으로 나타남
       * 상관 관계가 높은 변수들 중 하나만 남기고 나머지 변수들을 모형에서 제거 
    
----
-    
-참고 설명   
-최대 사후 확률(最大事後確率, maximum a posteriori, MAP)은 베이즈 통계학에서 사후 확률(事後確率)의 최빈값을 가리킨다. 최대 사후 확률에 대응하는 모수(母數, Parameter)는 최대우도(最大尤度, maximum likelihood estimation, MLE)와 마찬가지로 모수의 점 추정으로 사용할 수 있지만, 최대우도에서는 어떤 사건이 일어날 확률을 가장 높이는 모수를 찾는 것에 비해, 최대 사후 확률 모수는 모수의 사전 확률(事前確率)과 결합된 확률을 고려한다는 점이 다르다.
-    
+--
     
 ```{r, warning=F}
 (Titanic.logit.1 <- glm(Fate ~ Class + Sex + Age + SibSp + Parch + Title + Fare 
@@ -650,12 +646,6 @@ Deviance (편차), Resid. Df (Residual degrees of freedom, 잔차 자유도), Re
 
 
 ---
-`AIC(fit)`   
-[1] 263.8177   
-`BIC(fit)`   
-[1] 271.6332   
-`logLik(fit)`   
-'log Lik.' -128.9088 (df=3)   
 
 ```{r, warning=F}
 Titanic.logit.2 <- glm(Fate ~ Class + Sex + Age + Title + avg_prob 
@@ -713,7 +703,7 @@ summary(glm.tune.1)
 ```
 
 
-모델 | 예측률 | 증감 | 순위
+모델 | 예측률 | 순위 | 증감
 --- | --- | --- | ---
 glm.tune.1  | 0.73684 | 3162
 
@@ -733,13 +723,11 @@ summary(glm.tune.2)
 ```
 
 
-모델 | 예측률 | 증감 | 순위
+모델 | 예측률 | 순위 | 증감
 --- | --- | --- | ---
 glm.tune.1  | 0.73684 | 3162 | -
 glm.tune.2  | 0.75120 | 3038 | '124'
 
-
-As I discussed earlier, the 'Title' feature addresses more than one theme. For that reason, I believe it has real potential to improve this model. Besides, I put a good chunk of effort into it, so why not give it a go?
 
 Title에서 중요한 영향을 줄 수 있는 잠재력이 있어 보임
 
@@ -754,13 +742,12 @@ summary(glm.tune.3)
 ```
 
 
-모델 | 예측률 | 증감 | 순위
+모델 | 예측률 | 순위 | 증감
 --- | --- | --- | ---
 glm.tune.1  | 0.73684 | 3162 | -
 glm.tune.2  | 0.75120 | 3039 | '+125'
 glm.tune.3  | 0.74641 | 3084 | -45
 
-Nice! That gave us our first material decline in the residual deviance. Since the Title feature seems to give us everything that Age did (and more), I'm going to drop Age from the formula. I will also collapse the titles “Miss” and “Mrs” and leave a duo of Title-related factors which should represent the “women and children first” theme well.
 
 앞서 우리는 '영자와 아이 우선' 가설을 생성함, Title로 가설에 중요한 변수를 처리함 
 
@@ -777,11 +764,7 @@ summary(glm.tune.4)
 ```
 
 
-Remember that there were a lot of male passengers in third class. Given the “women and children first” policy already mentioned plus reports that the Titanic's internal layout was confusing (I recall reading that one crew member claimed it took him two weeks to become comfortable with finding his way around the ship), to say that “grown men in the lower decks had it tough” is such a gross understatement that I hesitated to put it in type. A feature reflecting those third-class men might make a further dent in that residual deviance. Indeed, it does...
-
-'여자와 아이들 우선'의 가설을 검증하기 위하여 I()함수를 이용하여 몇 가지 피쳐를 추가
-
-변수의 특정 조건 연산을 통해 feature를 추가 ..   
+'여자와 아이들 우선'의 가설을 검증하기 위하여 I()함수를 이용하여 몇 가지 피쳐 조합을 추가
 
 ```{r, warning=F}
  set.seed(35)
@@ -826,7 +809,7 @@ test.batch$new_predicted <- predict(glm.tune.5, newdata=test.batch)
 ```
 
 
-모델 | 예측률 | 증감 | 순위
+모델 | 예측률 | 순위 | 증감
 --- | --- | --- | ---
 glm.tune.1  | 0.73684 | 3162 | -
 glm.tune.2  | 0.75120 | 3039 | '+125'
@@ -925,7 +908,7 @@ test.batch$new_predicted <- predict(svm.tune, newdata=test.batch)
 
 cost 파라미터에 대한 ROC 값을 보여준다. 여기서는 c=2 에서 ROC 값이 가장 크게나옴 
 
-모델 | 예측률 | 증감 | 순위
+모델 | 예측률 | 순위 | 증감
 --- | --- | --- | ---
 glm.tune.1  | 0.73684 | 3162 | -
 glm.tune.2  | 0.75120 | 3039 | '+125'
@@ -1017,7 +1000,7 @@ test.batch$new_predicted <- predict(rf.tune, newdata=test.batch)
 아래와 같이 실제는 파라미터를 튜닝한 모델을 지정해야 하나? 
 이미 해당 모델에서는 최적의 파라미터 값을 알고 있기에 별도 지정하지 않아도 됨 
 
-모델 | 예측률 | 증감 | 순위
+모델 | 예측률 | 순위 | 증감
 --- | --- | --- | ---
 glm.tune.1  | 0.73684 | 3162 | -
 glm.tune.2  | 0.75120 | 3039 | '+125'
@@ -1274,7 +1257,7 @@ Let me reiterate the point I made in the disclaimer, way up at the top of this t
 
 ## 최종 모델 결
 
-모델 | 예측률 | 증감 | 순위
+모델 | 예측률 | 순위 | 증감
 --- | --- | --- | ---
 glm.tune.1  | 0.73684 | 3162 | -
 glm.tune.2  | 0.75120 | 3039 | '+125'
@@ -1286,6 +1269,7 @@ rf.tune  | 0.79426 | 1180 | '+247'
 
 ![submission](./image/final.png)
 
-[자료 기반 출처]
+
+[자료 출처]
 - https://github.com/wehrley/wehrley.github.io/blob/master/SOUPTONUTS.md
 - R을 이용한 데이터 처리&분석 실무, 서민구 저, 11장 
