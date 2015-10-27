@@ -726,6 +726,10 @@ glm.tune.1
 summary(glm.tune.1)
 ```
 
+예측률 | 증감 | 순위 | 모델
+--- | --- | --- | ---
+0.73684 | - | 3162  | glm.tune.1
+
 > 기존 코드보다는 결과가 좋아짐 
 
 ![alt text](./image/test_glm_tune_01.PNG)
